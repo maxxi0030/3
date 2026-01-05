@@ -1,0 +1,1312 @@
+[
+    {
+        "id": 1,
+        "name": "test - Copy (2) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (2) - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 2,
+        "name": "test - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (2).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 3,
+        "name": "test - Copy (3) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (3) - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 4,
+        "name": "test - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (3).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 5,
+        "name": "test - Copy (4) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (4) - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 6,
+        "name": "test - Copy (4).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (4).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 7,
+        "name": "test - Copy (5) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (5) - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 8,
+        "name": "test - Copy (5).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (5).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 9,
+        "name": "test - Copy (6) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (6) - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 10,
+        "name": "test - Copy (6).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (6).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 11,
+        "name": "test - Copy (7) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy (7) - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 12,
+        "name": "test - Copy - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy - Copy (2).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 13,
+        "name": "test - Copy - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy - Copy (3).png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 14,
+        "name": "test - Copy - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 15,
+        "name": "test - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test - Copy.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 16,
+        "name": "test.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/test.png",
+        "size": "0.01 MB",
+        "bytes": 7343,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 17,
+        "name": "tests",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 18,
+        "name": "tests - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 19,
+        "name": "tests - Copy (2)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (2)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 20,
+        "name": "tests - Copy (2) - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (2) - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 21,
+        "name": "tests - Copy (3)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (3)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 22,
+        "name": "tests - Copy (3) - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (3) - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 23,
+        "name": "tests - Copy (4)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (4)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 24,
+        "name": "tests - Copy (4) - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (4) - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 25,
+        "name": "tests - Copy (5)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (5)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 26,
+        "name": "tests - Copy (5) - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (5) - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 27,
+        "name": "tests - Copy (6)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (6)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 28,
+        "name": "tests - Copy (6) - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (6) - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 29,
+        "name": "tests - Copy (7) - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy (7) - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 30,
+        "name": "tests - Copy - Copy",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy - Copy",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 31,
+        "name": "tests - Copy - Copy (2)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy - Copy (2)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 32,
+        "name": "tests - Copy - Copy (3)",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/tests - Copy - Copy (3)",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 33,
+        "name": "trash - Copy (2) - Copy - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (2) - Copy - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 34,
+        "name": "trash - Copy (2) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (2) - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 35,
+        "name": "trash - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (2).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 36,
+        "name": "trash - Copy (3) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (3) - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 37,
+        "name": "trash - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (3).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 38,
+        "name": "trash - Copy (4) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (4) - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 39,
+        "name": "trash - Copy (4).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (4).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 40,
+        "name": "trash - Copy (5) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (5) - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 41,
+        "name": "trash - Copy (5).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (5).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 42,
+        "name": "trash - Copy (6) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (6) - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 43,
+        "name": "trash - Copy (6).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (6).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 44,
+        "name": "trash - Copy (7) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy (7) - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 45,
+        "name": "trash - Copy - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy - Copy (2).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 46,
+        "name": "trash - Copy - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy - Copy (3).png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 47,
+        "name": "trash - Copy - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 48,
+        "name": "trash - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash - Copy.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 49,
+        "name": "trash.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/trash.png",
+        "size": "0 MB",
+        "bytes": 340,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 50,
+        "name": "1 - Copy - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/1 - Copy - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "deleted",
+        "status_text": "Удален",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 51,
+        "name": "Give me 59 Seconds and Ill Make you Dangerously Motivated (1).srt",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/Give me 59 Seconds and Ill Make you Dangerously Motivated (1).srt",
+        "size": "0 MB",
+        "bytes": 1237,
+        "status": "deleted",
+        "status_text": "Удален",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 52,
+        "name": "Learn how to give a 3 minute presentation in under 3 minutes.srt",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/Learn how to give a 3 minute presentation in under 3 minutes.srt",
+        "size": "0 MB",
+        "bytes": 3388,
+        "status": "deleted",
+        "status_text": "Удален",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 53,
+        "name": "The One Minute Lesson Series.srt",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/The One Minute Lesson Series.srt",
+        "size": "0 MB",
+        "bytes": 2050,
+        "status": "deleted",
+        "status_text": "Удален",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 54,
+        "name": "1 - Copy (10) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (10) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 55,
+        "name": "1 - Copy (11) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (11) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 56,
+        "name": "1 - Copy (2) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (2) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 57,
+        "name": "1 - Copy (2).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (2).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 58,
+        "name": "1 - Copy (3) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (3) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 59,
+        "name": "1 - Copy (3).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (3).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 60,
+        "name": "1 - Copy (4) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (4) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 61,
+        "name": "1 - Copy (4).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (4).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 62,
+        "name": "1 - Copy (5) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (5) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 63,
+        "name": "1 - Copy (5).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (5).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 64,
+        "name": "1 - Copy (6) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (6) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 65,
+        "name": "1 - Copy (6).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (6).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 66,
+        "name": "1 - Copy (7) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (7) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 67,
+        "name": "1 - Copy (7).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (7).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 68,
+        "name": "1 - Copy (8) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (8) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 69,
+        "name": "1 - Copy (8).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (8).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 70,
+        "name": "1 - Copy (9) - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy (9) - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 71,
+        "name": "1 - Copy - Copy (2).txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy - Copy (2).txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 72,
+        "name": "1 - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/1 - Copy.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 73,
+        "name": "nananana.docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/lala\/nananana.docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 74,
+        "name": "без сортировки без фильтрации - Copy (10).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/без сортировки без фильтрации - Copy (10).png",
+        "size": "0.05 MB",
+        "bytes": 50524,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 75,
+        "name": "без сортировки без фильтрации - Copy (11).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/asasa\/без сортировки без фильтрации - Copy (11).png",
+        "size": "0.05 MB",
+        "bytes": 50524,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 76,
+        "name": "без сортировки без фильтрации - Copy (12).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/без сортировки без фильтрации - Copy (12).png",
+        "size": "0.05 MB",
+        "bytes": 50524,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 80,
+        "name": "без сортировки без фильтрации - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/без сортировки без фильтрации - Copy.png",
+        "size": "0.05 MB",
+        "bytes": 50524,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 81,
+        "name": "без сортировки без фильтрации.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/без сортировки без фильтрации.png",
+        "size": "0.05 MB",
+        "bytes": 50524,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 82,
+        "name": "сортировка по алфавиту - Copy (10).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (10).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 83,
+        "name": "сортировка по алфавиту - Copy (11).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (11).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 84,
+        "name": "сортировка по алфавиту - Copy (12).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (12).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 85,
+        "name": "сортировка по алфавиту - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (2).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 86,
+        "name": "сортировка по алфавиту - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (3).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 87,
+        "name": "сортировка по алфавиту - Copy (4).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (4).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 88,
+        "name": "сортировка по алфавиту - Copy (5).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (5).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 89,
+        "name": "сортировка по алфавиту - Copy (6).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (6).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 90,
+        "name": "сортировка по алфавиту - Copy (7).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (7).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 91,
+        "name": "сортировка по алфавиту - Copy (8).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (8).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 92,
+        "name": "сортировка по алфавиту - Copy (9).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy (9).png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 93,
+        "name": "сортировка по алфавиту - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту - Copy.png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 94,
+        "name": "сортировка по алфавиту.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка по алфавиту.png",
+        "size": "0.05 MB",
+        "bytes": 51448,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 95,
+        "name": "сортировка против алфавита - Copy (10).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (10).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 96,
+        "name": "сортировка против алфавита - Copy (11).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (11).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 97,
+        "name": "сортировка против алфавита - Copy (12).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (12).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 98,
+        "name": "сортировка против алфавита - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (2).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 99,
+        "name": "сортировка против алфавита - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (3).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 100,
+        "name": "сортировка против алфавита - Copy (4).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (4).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 101,
+        "name": "сортировка против алфавита - Copy (5).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (5).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 102,
+        "name": "сортировка против алфавита - Copy (6).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (6).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 103,
+        "name": "сортировка против алфавита - Copy (7).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (7).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 104,
+        "name": "сортировка против алфавита - Copy (8).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (8).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 105,
+        "name": "сортировка против алфавита - Copy (9).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy (9).png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 106,
+        "name": "сортировка против алфавита - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита - Copy.png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 107,
+        "name": "сортировка против алфавита.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/сортировка против алфавита.png",
+        "size": "0.05 MB",
+        "bytes": 51231,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 108,
+        "name": "удалил пнг - Copy (10).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (10).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 109,
+        "name": "удалил пнг - Copy (11).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (11).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 110,
+        "name": "удалил пнг - Copy (12).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (12).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 111,
+        "name": "удалил пнг - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (2).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 112,
+        "name": "удалил пнг - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (3).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 113,
+        "name": "удалил пнг - Copy (4).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (4).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 114,
+        "name": "удалил пнг - Copy (5).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (5).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 115,
+        "name": "удалил пнг - Copy (6).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (6).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 116,
+        "name": "удалил пнг - Copy (7).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (7).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 117,
+        "name": "удалил пнг - Copy (8).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (8).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 118,
+        "name": "удалил пнг - Copy (9).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy (9).png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 119,
+        "name": "удалил пнг - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг - Copy.png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 120,
+        "name": "удалил пнг.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/удалил пнг.png",
+        "size": "0.05 MB",
+        "bytes": 52266,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 121,
+        "name": "фильтрация(поиск) - Copy (10).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (10).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 122,
+        "name": "фильтрация(поиск) - Copy (11).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (11).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 123,
+        "name": "фильтрация(поиск) - Copy (12).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (12).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 124,
+        "name": "фильтрация(поиск) - Copy (2).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (2).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 125,
+        "name": "фильтрация(поиск) - Copy (3).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (3).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 126,
+        "name": "фильтрация(поиск) - Copy (4).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (4).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 127,
+        "name": "фильтрация(поиск) - Copy (5).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (5).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 128,
+        "name": "фильтрация(поиск) - Copy (6).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (6).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 129,
+        "name": "фильтрация(поиск) - Copy (7).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (7).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 130,
+        "name": "фильтрация(поиск) - Copy (8).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (8).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 131,
+        "name": "фильтрация(поиск) - Copy (9).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy (9).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 132,
+        "name": "фильтрация(поиск) - Copy.png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск) - Copy.png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 133,
+        "name": "фильтрация(поиск).png",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/фильтрация(поиск).png",
+        "size": "0.04 MB",
+        "bytes": 41618,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:08"
+    },
+    {
+        "id": 134,
+        "name": "ываываыа.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/ываываыа.txt",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "new",
+        "status_text": "Новый",
+        "date": "2026-01-05 12:14"
+    }
+]
