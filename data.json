@@ -492,41 +492,41 @@
     {
         "id": 50,
         "name": "1 - Copy - Copy.txt",
-        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/1 - Copy - Copy.txt",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/1 - Copy - Copy.txt",
         "size": "0 MB",
         "bytes": 0,
-        "status": "deleted",
-        "status_text": "Удален",
+        "status": "exists",
+        "status_text": "Существует",
         "date": "2026-01-05 12:08"
     },
     {
         "id": 51,
         "name": "Give me 59 Seconds and Ill Make you Dangerously Motivated (1).srt",
-        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/Give me 59 Seconds and Ill Make you Dangerously Motivated (1).srt",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/Give me 59 Seconds and Ill Make you Dangerously Motivated (1).srt",
         "size": "0 MB",
         "bytes": 1237,
-        "status": "deleted",
-        "status_text": "Удален",
+        "status": "exists",
+        "status_text": "Существует",
         "date": "2026-01-05 12:08"
     },
     {
         "id": 52,
         "name": "Learn how to give a 3 minute presentation in under 3 minutes.srt",
-        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/Learn how to give a 3 minute presentation in under 3 minutes.srt",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/Learn how to give a 3 minute presentation in under 3 minutes.srt",
         "size": "0 MB",
         "bytes": 3388,
-        "status": "deleted",
-        "status_text": "Удален",
+        "status": "exists",
+        "status_text": "Существует",
         "date": "2026-01-05 12:08"
     },
     {
         "id": 53,
         "name": "The One Minute Lesson Series.srt",
-        "path": "C:\/Users\/praktikants\/Desktop\/18222\/fails\/The One Minute Lesson Series.srt",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/The One Minute Lesson Series.srt",
         "size": "0 MB",
         "bytes": 2050,
-        "status": "deleted",
-        "status_text": "Удален",
+        "status": "exists",
+        "status_text": "Существует",
         "date": "2026-01-05 12:08"
     },
     {
@@ -1305,8 +1305,88 @@
         "path": "C:\/Users\/praktikants\/Desktop\/18222\/ываываыа.txt",
         "size": "0 MB",
         "bytes": 0,
-        "status": "new",
-        "status_text": "Новый",
+        "status": "exists",
+        "status_text": "Существует",
         "date": "2026-01-05 12:14"
+    },
+    {
+        "id": 135,
+        "name": "bibibib - Copy (2).docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib - Copy (2).docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 136,
+        "name": "bibibib - Copy (3).docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib - Copy (3).docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "deleted",
+        "status_text": "Удален",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 137,
+        "name": "bibibib - Copy (4).docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib - Copy (4).docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "deleted",
+        "status_text": "Удален",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 138,
+        "name": "bibibib - Copy (5).docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib - Copy (5).docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 139,
+        "name": "bibibib - Copy (6).docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/18222\/bibibib - Copy (6).docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 140,
+        "name": "bibibib - Copy (7).docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib - Copy (7).docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 141,
+        "name": "bibibib - Copy.docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib - Copy.docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:41"
+    },
+    {
+        "id": 142,
+        "name": "bibibib.docx",
+        "path": "C:\/Users\/praktikants\/Desktop\/fails\/ооооооо\/bibibib.docx",
+        "size": "0 MB",
+        "bytes": 0,
+        "status": "exists",
+        "status_text": "Существует",
+        "date": "2026-01-05 12:41"
     }
 ]
