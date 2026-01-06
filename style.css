@@ -401,3 +401,9 @@ body {
     cursor: not-allowed;
     opacity: 0.6;
 } */
+
+
+.badge.new { background: #E1F5FE; color: #0288D1; } /* Голубой для новых */
+.badge.moved { background: #FFF3E0; color: #F57C00; } /* Оранжевый для перемещенных */
+.badge.deleted { background: #FFEBEE; color: #D32F2F; } /* Красный для удаленных */
+.badge.exists { background: #E8F5E9; color: #388E3C; } /* Зеленый для обычных */
