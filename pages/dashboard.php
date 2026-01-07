@@ -55,51 +55,53 @@ if ($search !== '') {
 </div>
 
 <div class="table-card">
-    <table class="file-table">
-        <thead>
-            <tr>
-                <th>Имя файла</th>
-                <th>Путь</th>
-                <th width="100">Размер</th>
-                <th width="120">Статус</th>
-                <th width="150">Дата добавления</th>
-                <th width="100">Действия</th>
-            </tr>
-        </thead>
-
-        <tbody id="fileList">
-            <?php if (empty($files)): ?>
+    <div class="table-responsive">
+        <table class="file-table">
+            <thead>
                 <tr>
-                    <td colspan="6" style="text-align:center; padding: 40px;">Файлы не найдены</td>
+                    <th>Имя файла</th>
+                    <th>Путь</th>
+                    <th width="100">Размер</th>
+                    <th width="120">Статус</th>
+                    <th width="150">Дата добавления</th>
+                    <th width="100">Действия</th>
                 </tr>
-            <?php else: ?>
-                <?php foreach ($files as $file): ?>
-                    <tr>
-                        <td style="font-weight: 500;"><?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?></td>
-                        <td style="color: var(--text-secondary); font-family: monospace; font-size: 12px;">
-                            <?= htmlspecialchars($file['path'], ENT_QUOTES, 'UTF-8') ?>>
-                        </td>
-                        <td><?= $file['size'] ?></td>
-                        <td>
-                            <span class="badge <?= $file['status'] ?>">
-                                <?= $file['status_text'] ?>
-                            </span>
-                        </td>
-                        <td style="color: var(--text-secondary);"><?= $file['date'] ?></td>
-                        <td>
-                            <div class="action-group">
-                                <a href="?page=dashboard&info_id=<?= $file['id'] ?>" class="btn-icon">
-                                    <span class="material-icons-round">info</span>
-                                </a>
-                                <button class="btn-icon" title="Открыть папку">
-                                    <span class="material-icons-round">folder</span>
-                                </button>
-                            </div>
-                        </td>
-                    </tr>
-                <?php endforeach; ?>
-            <?php endif; ?>
-        </tbody>
+            </thead>
 
-    </table>
+            <tbody id="fileList">
+                <?php if (empty($files)): ?>
+                    <tr>
+                        <td colspan="6" style="text-align:center; padding: 40px;">Файлы не найдены</td>
+                    </tr>
+                <?php else: ?>
+                    <?php foreach ($files as $file): ?>
+                        <tr>
+                            <td style="font-weight: 500;"><?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?></td>
+                            <td style="color: var(--text-secondary); font-family: monospace; font-size: 12px;">
+                                <?= htmlspecialchars($file['path'], ENT_QUOTES, 'UTF-8') ?>
+                            </td>
+                            <td><?= $file['size'] ?></td>
+                            <td>
+                                <span class="badge <?= $file['status'] ?>">
+                                    <?= $file['status_text'] ?>
+                                </span>
+                            </td>
+                            <td style="color: var(--text-secondary);"><?= $file['date'] ?></td>
+                            <td>
+                                <div class="action-group">
+                                    <a href="?page=dashboard&info_id=<?= $file['id'] ?>" class="btn-icon">
+                                        <span class="material-icons-round">info</span>
+                                    </a>
+                                    <button class="btn-icon" title="Открыть папку">
+                                        <span class="material-icons-round">folder</span>
+                                    </button>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                <?php endif; ?>
+            </tbody>
+
+        </table>
+    </div>
 </div>
