@@ -403,7 +403,23 @@ body {
 } */
 
 
-.badge.new { background: #E1F5FE; color: #0288D1; } /* Голубой для новых */
-.badge.moved { background: #FFF3E0; color: #F57C00; } /* Оранжевый для перемещенных */
-.badge.deleted { background: #FFEBEE; color: #D32F2F; } /* Красный для удаленных */
-.badge.exists { background: #E8F5E9; color: #388E3C; } /* Зеленый для обычных */
+/* .badge.new { background: #E1F5FE; color: #0288D1; } 
+.badge.moved { background: #FFF3E0; color: #F57C00; } 
+.badge.deleted { background: #FFEBEE; color: #D32F2F; } 
+.badge.exists { background: #E8F5E9; color: #388E3C; } 
+
+
+.badge.untracked { 
+    background: #F5F5F5; 
+    color: #9E9E9E; 
+    border: 1px dashed #BDBDBD;
+} */
+
+.badge.new { background: #E8F5E9; color: #2E7D32; }       /* Зеленый */
+.badge.updated { background: #E3F2FD; color: #1565C0; }   /* Синий */
+.badge.moved { background: #FFF3E0; color: #EF6C00; }     /* Оранжевый */
+.badge.deleted { background: #FFEBEE; color: #C62828; }   /* Красный */
+.badge.source_off { background: #F5F5F5; color: #616161; } /* Серый */
+.badge.exists { background: #ffe2fe; color: #fa72e3; }        /* Светло-серый */
+
+

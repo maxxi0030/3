@@ -1,5 +1,5 @@
 <?php
-require_once 'bc/scanner.php';
+require_once 'bc/scanner2.php';
 
 $paths_file = 'paths.json';
 $data_file = 'data.json';
@@ -39,8 +39,26 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     }
 
 
+    // кнопка сканировать
     if ($_POST['action'] === 'start_full_scan') {
-        $message = runIncrementalScan($paths_file, $data_file);
+        // $message = runIncrementalScan($paths_file, $data_file); для первого сканнера 
+
+        // проверка есть ли хоть один путь
+        if (empty($saved_paths)){
+            $message = "Ошибка: Добавьте хотя бы один путь для сканирования.";
+        } else {
+            $result = runIncrementalScan($paths_file, $data_file);
+
+            // вывод соо из статистики
+            if (is_array($result)) {
+                $s = $result['stats'];
+                $message = "<b>" . $result['message'] . "</b><br>";
+                $message .= "Новых: {$s['new']} | Обновлено: {$s['updated']} | Перемещено: {$s['moved']} | Удалено: {$s['deleted']}";
+            } else {
+                // если вернулась строка - ошибка
+                $message = $result;
+            }
+        }
     }
 }
 
@@ -95,7 +113,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         </p>
         <form method="POST">
             <input type="hidden" name="action" value="start_full_scan">
-            <button type="submit" class="btn-primary big-btn">
+
+            <?php if (empty($saved_paths)): ?>
+                <p style="color: #EF4444; font-size: 12px; margin-top: 8px;">
+                    <span class="material-icons-round" style="font-size: 14px; vertical-align: middle;">warning</span>
+                    Сначала добавьте хотя бы одну папку
+                </p>
+            <?php endif; ?>
+
+            <button type="submit" class="btn-primary big-btn" <?= empty($saved_paths) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : '' ?>>
                 <span class="material-icons-round">radar</span>
                 Запустить сканирование
             </button>

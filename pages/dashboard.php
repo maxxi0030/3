@@ -2,7 +2,7 @@
 
 // пока что с json работаем
 
-// уть к нашему JSON-файлу
+// путь к нашему JSON-файлу
 $json_file = 'data.json';
 
 // Проверяем, существует ли файл
@@ -34,6 +34,12 @@ if ($search !== '') {
 
 <header class="top-bar">
     <h1>Файловое хранилище</h1>
+
+    <!-- всего файлов -->
+
+
+    <!-- сканировать файлы (такое же значение у кнопки как и в админке) -->
+
 </header>
 
 <div class="toolbar">
@@ -69,9 +75,9 @@ if ($search !== '') {
             <?php else: ?>
                 <?php foreach ($files as $file): ?>
                     <tr>
-                        <td style="font-weight: 500;"><?= $file['name'] ?></td>
+                        <td style="font-weight: 500;"><?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?></td>
                         <td style="color: var(--text-secondary); font-family: monospace; font-size: 12px;">
-                            <?= $file['path'] ?>
+                            <?= htmlspecialchars($file['path'], ENT_QUOTES, 'UTF-8') ?>>
                         </td>
                         <td><?= $file['size'] ?></td>
                         <td>

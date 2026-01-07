@@ -45,6 +45,34 @@ if ($show_info && isset($files)) {
                 </div>
             </div>
 
+
+            <!-- от куда и куда перемещен файл -->
+            <?php if ($current_file['status'] === 'moved' && !empty($current_file['old_path'])): ?>
+                <div class="file-detail-section" style="background: #FFF3E0; border-radius: 12px; padding: 15px; border: 1px dashed #FFB74D;">
+                    <h3 style="color: #E65100; margin-bottom: 12px;">
+                        <span class="material-icons-round" style="vertical-align: middle; font-size: 18px;">swap_horiz</span> 
+                        История перемещения
+                    </h3>
+                    
+                    <div style="font-size: 11px; color: #666; margin-bottom: 5px;">ОТКУДА:</div>
+                    <code style="display: block; background: rgba(255,255,255,0.5); padding: 8px; border-radius: 6px; font-size: 11px; color: #777; margin-bottom: 10px; word-break: break-all;">
+                        <?= htmlspecialchars($current_file['old_path']) ?>
+                    </code>
+
+                    <div style="text-align: center; margin: -5px 0 5px 0;">
+                        <span class="material-icons-round" style="color: #FFB74D;">arrow_downward</span>
+                    </div>
+
+                    <div style="font-size: 11px; color: #666; margin-bottom: 5px;">КУДА:</div>
+                    <code style="display: block; background: rgba(255,255,255,0.8); padding: 8px; border-radius: 6px; font-size: 11px; font-weight: bold; word-break: break-all;">
+                        <?= htmlspecialchars($current_file['path']) ?>
+                    </code>
+                </div>
+            <?php endif; ?>
+
+
+            
+
             <div class="file-detail-section">
                 <h3>Путь</h3>
                 <code style="display: block; background: #f5f5f5; padding: 10px; border-radius: 8px; font-size: 12px; word-break: break-all;">
