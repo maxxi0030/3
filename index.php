@@ -1,12 +1,12 @@
 <?php
 
 // Получаем текущую страницу из URL, по умолчанию 'dashboard'
-$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard';
+$page = isset($_GET['page']) ? $_GET['page'] : 'dashboard2';
 
 // Список разрешенных страниц (белый список для безопасности)
-$allowed_pages = ['dashboard', 'history', 'admin'];
+$allowed_pages = ['dashboard2', 'history', 'admin'];
 if (!in_array($page, $allowed_pages)) {
-    $page = 'dashboard';
+    $page = 'dashboard2';
 }
 
 
