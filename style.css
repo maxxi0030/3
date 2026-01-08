@@ -367,7 +367,7 @@ body {
     font-family: 'Consolas', 'Monaco', monospace;
     font-size: 11px;
     color: var(--text-secondary);
-    /* max-width: 200px;  */
+    /* max-width: 450px; */
 
 }
 
@@ -389,7 +389,7 @@ body {
 
 
 
-/* --- Admin Panel Styles --- */
+/* --- АДМИНКА --- */
 .admin-grid { display: flex; flex-direction: column; gap: 24px; }
 .admin-card {
     background: white; padding: 24px;
@@ -473,7 +473,11 @@ body {
 }
 .placeholder-content span { font-size: 48px; display: block; margin-bottom: 16px; }
 
-/* --- File Info Panel --- */
+
+
+
+
+/* --- ПАНЕЛЬКА С ИНФОЙ О ФАЙЛЕ --- */
 .file-info-panel {
     width: 400px;
     background: white;
@@ -678,12 +682,6 @@ body {
     .hide-mobile {
         display: none;
     }
-
-
-    /* .table-responsive {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-    } */
 
 }
 

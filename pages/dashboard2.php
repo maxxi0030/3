@@ -158,6 +158,7 @@ if ($search !== '') {
         <!-- по типу файла -->
 
 
+
     </div>
 
 </div>
@@ -175,7 +176,7 @@ if ($search !== '') {
             <thead>
                 <tr>
                     <th>Имя файла</th>
-                    <th class="hide-mobile">Путь</th>
+                    <!-- <th class="hide-mobile">Путь</th> -->
                     <th width="100" class="hide-mobile">Размер</th>
                     <th width="120">Статус</th>
                     <th width="150">Дата</th>
@@ -190,7 +191,7 @@ if ($search !== '') {
                 <!-- проверяем есть ли ваще Файлы -->
                 <?php if (empty($files)): ?>
                         <tr>
-                            <td colspan="6" class="empty-state">
+                            <td colspan="5" class="empty-state">
                                 <span class="material-icons-round">folder_off</span>
                                 <p>Файлы не найдены</p>
                             </td>
@@ -218,11 +219,7 @@ if ($search !== '') {
                             </td>
                                 
                             <!-- путь файла -->
-                            <td class="cell-path hide-mobile">
-                                <span title="<?= htmlspecialchars($file['path'], ENT_QUOTES, 'UTF-8') ?>">
-                                    <?= htmlspecialchars($file['path'], ENT_QUOTES, 'UTF-8') ?>
-                                </span>
-                            </td>
+
                                 
                             <!-- размер файла -->
                             <td class="cell-size hide-mobile"><?= $file['size'] ?? '-' ?></td>

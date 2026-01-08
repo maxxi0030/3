@@ -77,6 +77,9 @@ if ($show_info && isset($files)) {
                 <h3>Путь</h3>
                 <code style="display: block; background: #f5f5f5; padding: 10px; border-radius: 8px; font-size: 12px; word-break: break-all;">
                     <?= $current_file['path'] ?>
+                    <button class="btn-icon" onclick="copyToClipboard('<?= addslashes($file['path']) ?>')" title="Копировать путь">
+                        <span class="material-icons-round" style="font-size: 16px;">content_copy</span>
+                    </button>
                 </code>
             </div>
 
