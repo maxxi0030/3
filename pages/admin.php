@@ -76,6 +76,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     </div>
 <?php endif; ?>
 
+<div id="ajax-message-container"></div>
+
 <div class="admin-grid">
     <div class="admin-card">
         <h3>Источники сканирования</h3>
@@ -111,6 +113,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
             Сканер проверит все папки выше, найдет новые файлы и обновит статус старых.
         </p>
+
+        <!-- старая кнопка скана -->
         <form method="POST">
             <input type="hidden" name="action" value="start_full_scan">
 
@@ -126,5 +130,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 Запустить сканирование
             </button>
         </form>
+
+
+        <!-- новая кнопка скана -->
+        <div class="scan-container">
+        <button id="scanBtnDashboard" class="btn-primary big-btn" onclick="startScan(this)">
+            <span class="material-icons-round">sync</span>
+            <span class="btn-text">Сканировать</span>
+        </button>
+        <div id="lastScanInfo" style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+            Последний скан: <span id="lastTime"><?= $_SESSION['last_scan_time'] ?? '--:--' ?></span>
+        </div>
+    </div>
     </div>
 </div>

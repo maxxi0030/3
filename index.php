@@ -1,4 +1,5 @@
 <?php
+session_start();
 
 // Получаем текущую страницу из URL, по умолчанию 'dashboard'
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard2';

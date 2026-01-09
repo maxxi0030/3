@@ -1,5 +1,7 @@
 <?php
 
+
+
 // ЗАГРУЗКА ДАННЫХ
 $json_file = 'data.json';
 $all_files = [];
@@ -7,8 +9,10 @@ $stats = [
     'total' => 0, // всего активных файлов 
     'deleted' => 0,
     'moved' => 0,
+    'new' => 0,
     'size_gb' => 0
 ];
+
 
 
 // проверяем существует ли ваще файл
@@ -59,10 +63,13 @@ $stats['size_gb'] = round($stats['size_gb'] / 1073741824, 2);
 
 // но пока что оставим это 
 
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$files = [];
 
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
+
+// ВАЖНО: Сначала проверяем, есть ли поиск
 if ($search !== '') {
+    // Если есть поиск - фильтруем
     foreach ($all_files as $f) {
         // Проверка на целостность данных перед поиском
         if (!isset($f['name'])) continue;
@@ -79,6 +86,21 @@ if ($search !== '') {
 
 
 // обрабоотка кнопки перехода к файлу
+
+
+
+// ЧТО ТО ТИПО ПАГИНАЦИИ
+
+
+
+
+
+
+
+
+
+    // кнопка сканировать
+
 
 
 ?>
@@ -117,14 +139,20 @@ if ($search !== '') {
         </p>
     </div>
 
-    <!-- тут добавим настоящую кнопку  -->
-    <a href="?page=admin" class="btn-dashboard">
-        <span class="material-icons-round">sync</span> Сканировать
-    </a>
+    <div class="scan-container">
+        <button id="scanBtnDashboard" class="btn-primary" onclick="startScan(this)">
+            <span class="material-icons-round">sync</span>
+            <span class="btn-text">Сканировать</span>
+        </button>
+        <div id="lastScanInfo" style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+            Последний скан: <span id="lastTime"><?= $_SESSION['last_scan_time'] ?? '--:--' ?></span>
+        </div>
+    </div>
 </header>
 
+<div id="ajax-message-container"></div>
 
-
+<!-- <div id="ajax-message-container"></div> -->
 
 
 
@@ -239,9 +267,10 @@ if ($search !== '') {
                             <td>
                                 <div class="action-group">
                                     <!-- открытие окна с инфой -->
-                                    <a href="?page=dashboard&info_id=<?= $file['id'] ?? 0 ?>" class="btn-icon">
-                                       <span class="material-icons-round">info</span>
-                                    </a>
+                                    <button class="btn-icon" onclick="showFileInfo(this, <?= htmlspecialchars(json_encode($file)) ?>)" title="Информация">
+                                        <span class="material-icons-round">info</span>
+                                    </button>
+
 
                                     <!-- кнопка открыть папку с файлом -->
                                     <button class="btn-icon" 
@@ -259,5 +288,14 @@ if ($search !== '') {
         </table>
     </div>
 </div>
+
+    <!-- кнопка загрузить еще если есть еще файлы -->
+
+
+
+
+
+
+
 </body>
 </html>

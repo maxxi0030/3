@@ -491,6 +491,7 @@ body {
 
 .file-info-panel.hidden {
     transform: translateX(100%);
+    /* display: none; */
 }
 
 .file-info-header {
@@ -601,6 +602,13 @@ body {
 
 
 
+/* Стиль для подсвеченной строки */
+.file-table tr.active-row {
+    background-color: #f0f2ff; /* Цвет подсветки */
+}
+
+
+
 
 /* .badge.new { background: #E1F5FE; color: #0288D1; } 
 .badge.moved { background: #FFF3E0; color: #F57C00; } 
@@ -685,3 +693,32 @@ body {
 
 }
 
+
+
+
+
+
+/* Анимация вращения иконки при сканировании - пробная*/
+.fa-spin {
+    animation: spin 2s infinite linear;
+}
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+
+
+
+
+
+/* уведос */
+@keyframes slideUp {
+    from { bottom: -100px; opacity: 0; }
+    to { bottom: 30px; opacity: 1; }
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
