@@ -12,7 +12,6 @@ if ($show_info && isset($files)) {
 ?>
 
 
-
 <aside class="file-info-panel hidden" id="fileInfoPanel">
     <div class="file-info-header">
         <h2>Информация о файле</h2>
@@ -23,31 +22,115 @@ if ($show_info && isset($files)) {
     
     <div class="file-info-content" id="infoContent">
         <div class="file-preview">
-            <span id="infoIcon" class="material-icons-round" style="font-size: 64px; color: var(--accent);">insert_drive_file</span>
+            <span id="infoIcon" class="material-icons-round file-preview-icon">insert_drive_file</span>
         </div>
 
         <div class="file-detail-section">
             <h3>Детали</h3>
-            <div class="file-detail-row"><span class="file-detail-label">Имя:</span> <span class="file-detail-value" id="infoName"></span></div>
-            <div class="file-detail-row"><span class="file-detail-label">Размер:</span> <span class="file-detail-value" id="infoSize"></span></div>
-            <div class="file-detail-row"><span class="file-detail-label">Статус:</span> <span id="infoStatus" class="file-detail-value badge"></span></div>
+            <div class="file-detail-row">
+                <span class="file-detail-label">Имя:</span>
+                <span class="file-detail-value" id="infoName"></span>
+            </div>
+            <div class="file-detail-row">
+                <span class="file-detail-label">Размер:</span>
+                <span class="file-detail-value" id="infoSize"></span>
+            </div>
+            <div class="file-detail-row">
+                <span class="file-detail-label">Статус:</span>
+                <span id="infoStatus" class="file-detail-value badge"></span>
+            </div>
+            <div class="file-detail-row">
+                <span class="file-detail-label">Дата создания:</span>
+                <span id="infoStatus" class="file-detail-value badge"></span>
+            </div>
+            <div class="file-detail-row">
+                <span class="file-detail-label">Дата изменения:</span>
+                <span class="file-detail-value" id="infoCreated"></span>
+            </div>
+
         </div>
 
-        <div id="movedSection" class="file-detail-section" style="display: none; background: #FFF3E0; border-radius: 12px; padding: 15px; border: 1px dashed #FFB74D;">
-            <h3 style="color: #E65100; margin-bottom: 12px;">История перемещения</h3>
-            <div style="font-size: 11px; color: #666;">ОТКУДА:</div>
-            <code id="infoOldPath" style="display: block; word-break: break-all; margin-bottom: 10px;"></code>
-            <div style="font-size: 11px; color: #666;">КУДА:</div>
-            <code id="infoNewPath" style="display: block; word-break: break-all; font-weight: bold;"></code>
+                <!-- Секция метаданных видео -->
+        <div id="videoMetadataSection" class="file-detail-section video-metadata-section" style="display: none;">
+            <h3>Метаданные видео</h3>
+            
+            <!-- Состояние загрузки -->
+            <div id="videoMetadataLoading" class="video-metadata-loading">
+                <span class="material-icons-round rotating">refresh</span>
+                <span>Загрузка метаданных...</span>
+            </div>
+
+            <!-- Ошибка загрузки -->
+            <div id="videoMetadataError" class="video-metadata-error" style="display: none;">
+                <span class="material-icons-round">error_outline</span>
+                <span>Не удалось загрузить метаданные</span>
+            </div>
+
+            <!-- Метаданные -->
+            <div id="videoMetadataContent" style="display: none;">
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Длительность:</span>
+                    <span class="file-detail-value" id="videoDuration">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Разрешение:</span>
+                    <span class="file-detail-value" id="videoResolution">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Соотношение сторон:</span>
+                    <span class="file-detail-value" id="videoAspectRatio">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">FPS:</span>
+                    <span class="file-detail-value" id="videoFps">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Битрейт:</span>
+                    <span class="file-detail-value" id="videoBitrate">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Видео кодек:</span>
+                    <span class="file-detail-value" id="videoCodecVideo">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Аудио кодек:</span>
+                    <span class="file-detail-value" id="videoCodecAudio">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Аудио каналы:</span>
+                    <span class="file-detail-value" id="videoAudioChannels">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Язык:</span>
+                    <span class="file-detail-value" id="videoLanguage">—</span>
+                </div>
+                <div class="file-detail-row">
+                    <span class="file-detail-label">Субтитры:</span>
+                    <span class="file-detail-value" id="videoSubtitles">—</span>
+                </div>
+            </div>
+        </div>
+
+        <div id="movedSection" class="file-detail-section file-moved-section">
+            <h3>История перемещения</h3>
+            <div class="file-path-label">ОТКУДА:</div>
+            <code id="infoOldPath" class="file-path-code"></code>
+            <div class="file-path-label">КУДА:</div>
+            <code id="infoNewPath" class="file-path-code-new"></code>
         </div>
 
         <div class="file-detail-section">
             <h3>Путь</h3>
-            <code id="infoFullPath" style="display: block; background: #f5f5f5; padding: 10px; border-radius: 8px; font-size: 12px; word-break: break-all;"></code>
+            <div class="file-path-container">
+                <code id="infoFullPath" class="file-full-path"></code>
+                <button onclick="copyPath()" class="copy-path-btn" title="Копировать путь">
+                    <span class="material-icons-round">content_copy</span>
+                </button>
+            </div>
         </div>
 
         <div class="file-actions-panel">
-            <button id="openFolderBtn" class="btn-primary" style="width: 100%;">
+            <button id="openFolderBtn" class="btn-primary open-folder-btn">
                 <span class="material-icons-round">folder</span> Перейти в папку
             </button>
         </div>

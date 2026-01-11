@@ -1,0 +1,128 @@
+
+; таблица для путей сканирования 
+scan_paths
+
+CREATE TABLE scan_paths (
+    id SERIAL PRIMARY KEY,
+    path TEXT NOT NULL UNIQUE,
+    is_active BOOLEAN DEFAULT true,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_scanned_at TIMESTAMP NULL
+);
+
+
+; основаная инфа о файлах
+files
+
+CREATE TABLE files (
+    id SERIAL PRIMARY KEY,
+    scan_path_id INTEGER REFERENCES scan_paths(id),
+    file_path TEXT NOT NULL UNIQUE,
+    file_name TEXT NOT NULL,
+    file_extension VARCHAR(50),
+    file_size BIGINT,
+    file_hash VARCHAR(64) NULL,
+    file_status VARCHAR(20) DEFAULT 'new',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+; метаданные для видео
+video_metadata
+
+CREATE TABLE video_metadata (
+    id SERIAL PRIMARY KEY,
+    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE UNIQUE,
+    duration INTEGER,
+    width INTEGER,
+    height INTEGER,
+    resolution VARCHAR(20),
+    fps DECIMAL(5,2),
+    bitrate BIGINT,
+    codec_video VARCHAR(50),
+    codec_audio VARCHAR(50),
+    audio_channels INTEGER,
+    aspect_ratio VARCHAR(20),
+    language VARCHAR(10),
+    subtitles BOOLEAN DEFAULT false,
+    thumbnail_path TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+
+; история сканов
+CREATE TABLE scan_history (
+    id SERIAL PRIMARY KEY,
+    scan_path_id INTEGER REFERENCES scan_paths(id),
+    scan_started_at TIMESTAMP NOT NULL,
+    scan_finished_at TIMESTAMP,
+    files_found INTEGER DEFAULT 0,
+    files_added INTEGER DEFAULT 0,
+    files_updated INTEGER DEFAULT 0,
+    files_deleted INTEGER DEFAULT 0,
+    files_moved INTEGER DEFAULT 0,
+    status VARCHAR(20),
+    error_message TEXT
+);
+
+
+
+
+
+; коменты к файлам
+file_comments
+
+CREATE TABLE file_comments (
+    id SERIAL PRIMARY KEY,
+    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
+    author_name VARCHAR(100) NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
+; детальная история изменений файлов
+file_changes
+
+CREATE TABLE file_changes (
+    id SERIAL PRIMARY KEY,
+    scan_history_id INTEGER REFERENCES scan_history(id) ON DELETE CASCADE,
+    file_id INTEGER REFERENCES files(id),
+    change_type VARCHAR(20),
+    old_path TEXT,
+    new_path TEXT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    details JSONB
+);
+
+
+
+
+
+
+
+
+; индексы для быстрого поиска
+-- Для поиска по имени файла (полнотекстовый поиск)
+CREATE INDEX idx_files_name_search ON files USING gin(to_tsvector('simple', file_name));
+
+-- Для фильтрации
+CREATE INDEX idx_files_extension ON files(file_extension);
+CREATE INDEX idx_files_status ON files(file_status);
+CREATE INDEX idx_files_created_at ON files(created_at);
+
+-- Для метаданных видео
+CREATE INDEX idx_video_metadata_resolution ON video_metadata(resolution);
+CREATE INDEX idx_video_metadata_duration ON video_metadata(duration);
+
+-- Для быстрого доступа
+CREATE INDEX idx_files_path ON files(file_path);
+CREATE INDEX idx_file_comments_file_id ON file_comments(file_id);
+CREATE INDEX idx_file_changes_scan_history ON file_changes(scan_history_id);
+```
+
+
+
+

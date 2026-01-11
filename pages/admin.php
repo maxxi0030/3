@@ -40,38 +40,36 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 
     // кнопка сканировать
-    if ($_POST['action'] === 'start_full_scan') {
-        // $message = runIncrementalScan($paths_file, $data_file); для первого сканнера 
+    // if ($_POST['action'] === 'start_full_scan') {
+    //     // $message = runIncrementalScan($paths_file, $data_file); для первого сканнера 
 
-        // проверка есть ли хоть один путь
-        if (empty($saved_paths)){
-            $message = "Ошибка: Добавьте хотя бы один путь для сканирования.";
-        } else {
-            $result = runIncrementalScan($paths_file, $data_file);
+    //     // проверка есть ли хоть один путь
+    //     if (empty($saved_paths)){
+    //         $message = "Ошибка: Добавьте хотя бы один путь для сканирования.";
+    //     } else {
+    //         $result = runIncrementalScan($paths_file, $data_file);
 
-            // вывод соо из статистики
-            if (is_array($result)) {
-                $s = $result['stats'];
-                $message = "<b>" . $result['message'] . "</b><br>";
-                $message .= "Новых: {$s['new']} | Обновлено: {$s['updated']} | Перемещено: {$s['moved']} | Удалено: {$s['deleted']}";
-            } else {
-                // если вернулась строка - ошибка
-                $message = $result;
-            }
-        }
-    }
+    //         // вывод соо из статистики
+    //         if (is_array($result)) {
+    //             $s = $result['stats'];
+    //             $message = "<b>" . $result['message'] . "</b><br>";
+    //             $message .= "Новых: {$s['new']} | Обновлено: {$s['updated']} | Перемещено: {$s['moved']} | Удалено: {$s['deleted']}";
+    //         } else {
+    //             // если вернулась строка - ошибка
+    //             $message = $result;
+    //         }
+    //     }
+    // }
 }
 
-
 ?>
-
 <header class="top-bar">
     <h1>Панель администратора</h1>
 </header>
 
 <?php if (isset($message)): ?>
-    <div style="padding: 12px; background: #EEF2FF; color: var(--accent); border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border);">
-        <span class="material-icons-round" style="vertical-align: middle; font-size: 18px;">info</span>
+    <div class="alert alert-info">
+        <span class="material-icons-round">info</span>
         <?= $message ?>
     </div>
 <?php endif; ?>
@@ -90,12 +88,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
         <ul class="paths-list">
             <?php if (empty($saved_paths)): ?>
-                <li style="padding: 20px; color: var(--text-secondary); text-align: center;">Список путей пуст</li>
+                <li class="path-empty">Список путей пуст</li>
             <?php else: ?>
                 <?php foreach ($saved_paths as $p): ?>
                     <li class="path-item">
-                        <span style="font-family: monospace;"><?= htmlspecialchars($p) ?></span>
-                        <form method="POST" style="margin: 0;" onsubmit="return confirm('Удалить этот путь?')">
+                        <span class="path-text"><?= htmlspecialchars($p) ?></span>
+                        <form method="POST" class="m-0" onsubmit="return confirm('Удалить этот путь?')">
                             <input type="hidden" name="action" value="delete_path">
                             <input type="hidden" name="path_value" value="<?= htmlspecialchars($p) ?>">
                             <button type="submit" class="btn-delete">
@@ -107,40 +105,41 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <?php endif; ?>
         </ul>
     </div>
+<div class="admin-card">
+        <!-- <h3>Управление сканером</h3>
+        <p class="card-description">
+            Сканер проверит все папки выше, найдет новые файлы и обновит базу данных.
+        </p> -->
 
-    <div class="admin-card">
-        <h3>Управление сканером</h3>
-        <p style="color: var(--text-secondary); margin-bottom: 20px; font-size: 14px;">
-            Сканер проверит все папки выше, найдет новые файлы и обновит статус старых.
-        </p>
-
-        <!-- старая кнопка скана -->
-        <form method="POST">
-            <input type="hidden" name="action" value="start_full_scan">
-
-            <?php if (empty($saved_paths)): ?>
-                <p style="color: #EF4444; font-size: 12px; margin-top: 8px;">
-                    <span class="material-icons-round" style="font-size: 14px; vertical-align: middle;">warning</span>
-                    Сначала добавьте хотя бы одну папку
-                </p>
-            <?php endif; ?>
-
-            <button type="submit" class="btn-primary big-btn" <?= empty($saved_paths) ? 'disabled style="opacity: 0.5; cursor: not-allowed;"' : '' ?>>
-                <span class="material-icons-round">radar</span>
-                Запустить сканирование
-            </button>
-        </form>
-
-
-        <!-- новая кнопка скана -->
         <div class="scan-container">
-        <button id="scanBtnDashboard" class="btn-primary big-btn" onclick="startScan(this)">
-            <span class="material-icons-round">sync</span>
-            <span class="btn-text">Сканировать</span>
-        </button>
-        <div id="lastScanInfo" style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
-            Последний скан: <span id="lastTime"><?= $_SESSION['last_scan_time'] ?? '--:--' ?></span>
+            <button id="scanBtnDashboard" 
+                    class="btn-primary big-btn" 
+                    onclick="startScan(this)"
+                    <?= empty($saved_paths) ? 'disabled' : '' ?>>
+                <span class="material-icons-round">sync</span>
+                <span class="btn-text">Запустить сканирование</span>
+            </button>
+            
+            <div class="scan-footer">
+                Последний скан: <span id="lastTime"><?= $_SESSION['last_scan_time'] ?? '--:--' ?></span>
+            </div>
+        </div>
+
+        <div class="stats">
+            <div class="stats-item">
+                <span>Всего файлов:</span>
+                <span class="stats-val" id="stat-total"><?= $stats['total'] ?></span>
+            </div>
+            <div class="stats-item">
+                <span>Общий объем:</span>
+                <span class="stats-val" id="stat-size"><b><?= $stats['size_gb'] ?></b> GB</span>
+            </div>
+            <!-- <div class="stats-item">
+                <span>Новых / Удаленных:</span>
+                <span class="stats-val">
+                    <span class="badge exists" id="stat-new">0</span> / 
+                    <span class="badge deleted" id="stat-missing">0</span>
+                </span>
+            </div> -->
         </div>
     </div>
-    </div>
-</div>
