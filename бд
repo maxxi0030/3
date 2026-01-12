@@ -24,6 +24,7 @@ CREATE TABLE files (
     file_size BIGINT,
     file_hash VARCHAR(64) NULL,
     file_status VARCHAR(20) DEFAULT 'new',
+    temp_found BOOLEAN DEFAULT false,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
@@ -126,3 +127,190 @@ CREATE INDEX idx_file_changes_scan_history ON file_changes(scan_history_id);
 
 
 
+
+; ПОЛЕЗНЫЕ КОМАНДЫ
+-- Посмотреть все таблицы
+\dt
+
+-- Описание таблицы
+\d files
+
+-- Посмотреть индексы
+\di
+
+-- Очистить таблицу (удалить все данные)
+TRUNCATE files CASCADE;
+
+-- Удалить таблицу
+DROP TABLE files CASCADE;
+
+-- Посмотреть размер БД
+SELECT pg_size_pretty(pg_database_size('video_indexer'));
+
+
+
+-- ============================================
+-- DATABASE SCHEMA FOR VIDEO INDEXER
+-- ============================================
+
+-- Удаляем таблицы если они существуют (для чистой установки)
+DROP TABLE IF EXISTS file_changes CASCADE;
+DROP TABLE IF EXISTS scan_history CASCADE;
+DROP TABLE IF EXISTS file_comments CASCADE;
+DROP TABLE IF EXISTS video_metadata CASCADE;
+DROP TABLE IF EXISTS files CASCADE;
+DROP TABLE IF EXISTS scan_paths CASCADE;
+
+-- ============================================
+-- ТАБЛИЦА 1: scan_paths (пути для сканирования)
+-- ============================================
+CREATE TABLE scan_paths (
+    id SERIAL PRIMARY KEY,
+    path TEXT NOT NULL UNIQUE,
+    is_active BOOLEAN DEFAULT true,
+    description TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    last_scanned_at TIMESTAMP NULL
+);
+
+-- ============================================
+-- ТАБЛИЦА 2: files (основная информация о файлах)
+-- ============================================
+CREATE TABLE files (
+    id SERIAL PRIMARY KEY,
+    scan_path_id INTEGER REFERENCES scan_paths(id),
+    file_path TEXT NOT NULL UNIQUE,
+    file_name TEXT NOT NULL,
+    file_extension VARCHAR(50),
+    file_size BIGINT,
+    file_hash VARCHAR(64) NULL,
+    file_status VARCHAR(20) DEFAULT 'new',
+    temp_found BOOLEAN DEFAULT false,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- ТАБЛИЦА 3: video_metadata (метаданные видео)
+-- ============================================
+CREATE TABLE video_metadata (
+    id SERIAL PRIMARY KEY,
+    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE UNIQUE,
+    duration INTEGER,
+    width INTEGER,
+    height INTEGER,
+    resolution VARCHAR(20),
+    fps DECIMAL(5,2),
+    bitrate BIGINT,
+    codec_video VARCHAR(50),
+    codec_audio VARCHAR(50),
+    audio_channels INTEGER,
+    aspect_ratio VARCHAR(20),
+    language VARCHAR(10),
+    subtitles BOOLEAN DEFAULT false,
+    thumbnail_path TEXT,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- ТАБЛИЦА 4: file_comments (комментарии к файлам)
+-- ============================================
+CREATE TABLE file_comments (
+    id SERIAL PRIMARY KEY,
+    file_id INTEGER REFERENCES files(id) ON DELETE CASCADE,
+    author_name VARCHAR(100) NOT NULL,
+    comment TEXT NOT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+-- ============================================
+-- ТАБЛИЦА 5: scan_history (история сканирований)
+-- ============================================
+CREATE TABLE scan_history (
+    id SERIAL PRIMARY KEY,
+    scan_path_id INTEGER REFERENCES scan_paths(id),
+    scan_started_at TIMESTAMP NOT NULL,
+    scan_finished_at TIMESTAMP,
+    files_found INTEGER DEFAULT 0,
+    files_added INTEGER DEFAULT 0,
+    files_updated INTEGER DEFAULT 0,
+    files_deleted INTEGER DEFAULT 0,
+    files_moved INTEGER DEFAULT 0,
+    status VARCHAR(20),
+    error_message TEXT
+);
+
+-- ============================================
+-- ТАБЛИЦА 6: file_changes (детальная история изменений)
+-- ============================================
+CREATE TABLE file_changes (
+    id SERIAL PRIMARY KEY,
+    scan_history_id INTEGER REFERENCES scan_history(id) ON DELETE CASCADE,
+    file_id INTEGER REFERENCES files(id),
+    change_type VARCHAR(20),
+    old_path TEXT,
+    new_path TEXT,
+    changed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    details JSONB
+);
+
+-- ============================================
+-- ИНДЕКСЫ ДЛЯ БЫСТРОГО ПОИСКА
+-- ============================================
+
+-- Для поиска по имени файла
+CREATE INDEX idx_files_name ON files(file_name);
+CREATE INDEX idx_files_name_pattern ON files(file_name text_pattern_ops);
+
+-- Для фильтрации
+CREATE INDEX idx_files_extension ON files(file_extension);
+CREATE INDEX idx_files_status ON files(file_status);
+CREATE INDEX idx_files_created_at ON files(created_at);
+CREATE INDEX idx_files_size ON files(file_size);
+
+-- Для метаданных видео
+CREATE INDEX idx_video_metadata_resolution ON video_metadata(resolution);
+CREATE INDEX idx_video_metadata_duration ON video_metadata(duration);
+CREATE INDEX idx_video_metadata_file_id ON video_metadata(file_id);
+
+-- Для быстрого доступа
+CREATE INDEX idx_files_path ON files(file_path);
+CREATE INDEX idx_files_scan_path_id ON files(scan_path_id);
+CREATE INDEX idx_file_comments_file_id ON file_comments(file_id);
+CREATE INDEX idx_file_changes_scan_history ON file_changes(scan_history_id);
+CREATE INDEX idx_file_changes_file_id ON file_changes(file_id);
+CREATE INDEX idx_scan_history_scan_path_id ON scan_history(scan_path_id);
+
+
+
+-- ============================================
+-- ТЕСТОВЫЕ ДАННЫЕ (опционально, можно удалить)
+-- ============================================
+
+-- Добавляем тестовый путь
+INSERT INTO scan_paths (path, description) VALUES 
+('/home/videos', 'Основная папка с видео');
+
+-- Добавляем тестовый файл
+INSERT INTO files (scan_path_id, file_path, file_name, file_extension, file_size, file_status) VALUES 
+(1, '/home/videos/test.mp4', 'test.mp4', '.mp4', 104857600, 'new');
+
+-- Добавляем метаданные к тестовому файлу
+INSERT INTO video_metadata (file_id, duration, width, height, resolution, fps, codec_video) VALUES 
+(1, 120, 1920, 1080, '1080p', 30.00, 'H.264');
+
+-- ============================================
+-- ПОЛЕЗНЫЕ ЗАПРОСЫ ДЛЯ ПРОВЕРКИ
+-- ============================================
+
+-- Посмотреть все пути
+-- SELECT * FROM scan_paths;
+
+-- Посмотреть все файлы с метаданными
+-- SELECT f.*, vm.* FROM files f LEFT JOIN video_metadata vm ON f.id = vm.file_id;
+
+-- Посмотреть историю сканирований
+-- SELECT * FROM scan_history ORDER BY scan_started_at DESC;
+
+-- Посмотреть комментарии к файлу
+-- SELECT * FROM file_comments WHERE file_id = 1;

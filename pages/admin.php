@@ -1,42 +1,101 @@
 <?php
 require_once 'bc/scanner2.php';
 
-$paths_file = 'paths.json';
-$data_file = 'data.json';
+// БД
 $message = null;
 
+// 1. ЗАГРУЗКА ПУТЕЙ ИЗ БАЗЫ
+$stmt = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC");
+$saved_paths = $stmt->fetchAll();
 
-// Загружаем существующие пути из JSON
-$saved_paths = file_exists($paths_file) ? json_decode(file_get_contents($paths_file), true) : [];
-
-// Обработка POST-запросов
+// 2. ОБРАБОТКА POST-ЗАПРОСОВ
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
     // ДОБАВЛЕНИЕ ПУТИ
     if ($_POST['action'] === 'add_new_path') {
         $new_path = trim($_POST['path']);
-        // Простая нормализация: заменяем обратные слеши на прямые для единообразия
-        $new_path = str_replace('\\', '/', $new_path);
+        $new_path = str_replace('\\', '/', $new_path); // Нормализация
         
-        if (!empty($new_path) && !in_array($new_path, $saved_paths)) {
-            $saved_paths[] = $new_path;
-            file_put_contents($paths_file, json_encode($saved_paths, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            $message = "Путь успешно добавлен.";
+        if (!empty($new_path)) {
+            try {
+                $stmt = $pdo->prepare("INSERT INTO scan_paths (path) VALUES (?)");
+                $stmt->execute([$new_path]);
+                $message = "Путь успешно добавлен.";
+                
+                // Обновляем список для вывода ниже
+                $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
+            } catch (PDOException $e) {
+                // Если сработал UNIQUE в базе (путь уже есть)
+                $message = "Ошибка: такой путь уже существует.";
+            }
         }
     }
 
     // УДАЛЕНИЕ ПУТИ
     if ($_POST['action'] === 'delete_path') {
-        $path_to_delete = $_POST['path_value'];
-        // Ищем индекс элемента в массиве
-        if (($key = array_search($path_to_delete, $saved_paths)) !== false) {
-            unset($saved_paths[$key]);
-            // Переиндексируем массив и сохраняем
-            $saved_paths = array_values($saved_paths);
-            file_put_contents($paths_file, json_encode($saved_paths, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-            $message = "Путь удален.";
-        }
+        $id_to_delete = (int)$_POST['path_id']; // Удаляем по ID, это надежнее
+        
+        $stmt = $pdo->prepare("DELETE FROM scan_paths WHERE id = ?");
+        $stmt->execute([$id_to_delete]);
+        $message = "Путь удален из источников.";
+        
+        // Обновляем список
+        $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
     }
+}
+
+
+
+
+
+
+
+
+// НИЩИЙ ВАРИК С ДЖСОН
+// $paths_file = 'paths.json';
+// $data_file = 'data.json';
+// $message = null;
+
+
+// // Загружаем существующие пути из JSON
+// // $saved_paths = file_exists($paths_file) ? json_decode(file_get_contents($paths_file), true) : [];
+// $saved_paths = [];
+// if (file_exists($paths_file)) {
+//     $content = file_get_contents($paths_file);
+//     $decoded = json_decode($content, true);
+//     if (is_array($decoded)) {
+//         $saved_paths = $decoded;
+//     }
+// }
+
+// // Обработка POST-запросов
+// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    
+//     // ДОБАВЛЕНИЕ ПУТИ
+//     if ($_POST['action'] === 'add_new_path') {
+//         $new_path = trim($_POST['path']);
+//         // Простая нормализация: заменяем обратные слеши на прямые для единообразия
+//         $new_path = str_replace('\\', '/', $new_path);
+        
+//         if (!empty($new_path) && !in_array($new_path, $saved_paths)) {
+//             $saved_paths[] = $new_path;
+//             file_put_contents($paths_file, json_encode($saved_paths, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+//             $message = "Путь успешно добавлен.";
+//         }
+//     }
+
+//     // УДАЛЕНИЕ ПУТИ
+//     if ($_POST['action'] === 'delete_path') {
+//         $path_to_delete = $_POST['path_value'];
+//         // Ищем индекс элемента в массиве
+//         if (($key = array_search($path_to_delete, $saved_paths)) !== false) {
+//             unset($saved_paths[$key]);
+//             // Переиндексируем массив и сохраняем
+//             $saved_paths = array_values($saved_paths);
+//             file_put_contents($paths_file, json_encode($saved_paths, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
+//             $message = "Путь удален.";
+//         }
+//     }
 
 
     // кнопка сканировать
@@ -60,9 +119,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     //         }
     //     }
     // }
-}
+// }
 
 ?>
+
+
+
+
 <header class="top-bar">
     <h1>Панель администратора</h1>
 </header>
@@ -92,10 +155,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             <?php else: ?>
                 <?php foreach ($saved_paths as $p): ?>
                     <li class="path-item">
-                        <span class="path-text"><?= htmlspecialchars($p) ?></span>
+                        <span class="path-text"><?= htmlspecialchars($p['path']) ?></span>
+                        
                         <form method="POST" class="m-0" onsubmit="return confirm('Удалить этот путь?')">
                             <input type="hidden" name="action" value="delete_path">
-                            <input type="hidden" name="path_value" value="<?= htmlspecialchars($p) ?>">
+                            <input type="hidden" name="path_id" value="<?= $p['id'] ?>">
+                            
                             <button type="submit" class="btn-delete">
                                 <span class="material-icons-round">delete</span>
                             </button>
@@ -126,14 +191,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         </div>
 
         <div class="stats">
-            <div class="stats-item">
+            <!-- <div class="stats-item">
                 <span>Всего файлов:</span>
                 <span class="stats-val" id="stat-total"><?= $stats['total'] ?></span>
             </div>
             <div class="stats-item">
                 <span>Общий объем:</span>
                 <span class="stats-val" id="stat-size"><b><?= $stats['size_gb'] ?></b> GB</span>
-            </div>
+            </div> -->
             <!-- <div class="stats-item">
                 <span>Новых / Удаленных:</span>
                 <span class="stats-val">

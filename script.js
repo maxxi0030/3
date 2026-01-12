@@ -68,10 +68,22 @@ function showFileInfo(buttonElement, file) {
     icon.textContent = (file.status === 'exists') ? 'insert_drive_file' : 'report_problem';
 
     const movedSection = document.getElementById('movedSection');
-    if (file.status === 'moved' && file.old_path) {
+    
+    // 1. Проверяем наличие old_path (это самый верный признак)
+    // 2. Используем опциональный статус, если он есть в объекте
+    const isMoved = file.old_path || file.status === 'moved';
+
+    if (isMoved) {
         movedSection.style.display = 'block';
-        document.getElementById('infoOldPath').textContent = file.old_path;
-        document.getElementById('infoNewPath').textContent = file.path;
+        
+        // Заполняем пути
+        const oldPathElem = document.getElementById('infoOldPath');
+        const newPathElem = document.getElementById('infoNewPath');
+        
+        if (oldPathElem) oldPathElem.textContent = file.old_path || 'Неизвестно';
+        if (newPathElem) newPathElem.textContent = file.path || file.new_path;
+        
+        console.log("Отображаем историю перемещения для файла:", file.id);
     } else {
         movedSection.style.display = 'none';
     }
@@ -105,7 +117,37 @@ function closeFileInfo() {
     
 }
 
+// Новая функция-посредник
+function loadFileAndShowInfo(buttonElement, fileId) {
+    // 1. Идем на сервер за данными конкретного файла
+    fetch('get_file_info.php?id=' + fileId)
+        .then(response => response.json())
+        .then(data => {
+            // Переделываем названия полей из БД под те, что ждет твоя функция
+            const fileForDisplay = {
+                id: data.id,
+                name: data.file_name,
+                size: formatBytes(data.file_size),
+                path: data.file_path,
+                status: data.file_status,
+                status_text: data.file_status, // можно сделать маппинг на русский
+                old_path: data.old_path // если добавишь такую колонку
+            };
 
+            // 2. Вызываем твою оригинальную функцию, которую ты скинул
+            showFileInfo(buttonElement, fileForDisplay);
+            
+            // 3. Заполняем даты (которых не было в старой функции)
+            const createdDate = data.created_at ? data.created_at.split('.')[0] : '-';
+            document.getElementById('infoCreated').textContent = createdDate;
+
+            // Если есть дата изменения
+            if (data.updated_at) {
+                const updatedDate = data.updated_at.split('.')[0];
+                document.getElementById('infoUpdated').textContent = updatedDate;
+            }
+        });
+}
 
 
 
@@ -206,8 +248,11 @@ function startScan(btn) {
            
             // Обновляем локальную метку времени, чтобы ЭТОМУ пользователю 
     // не вылезло уведомление о его же собственном скане
-        if (data.sync_time) {
-            lastKnownSyncTime = data.sync_time;
+        // if (data.sync_time) {
+        //     lastKnownSyncTime = data.sync_time;
+        // }
+        if (data.global_sync) { 
+            lastKnownSyncTime = data.global_sync; 
         }
             // 2. Выводим уведомление
             if (container) {
@@ -271,52 +316,67 @@ window.addEventListener('load', function() {
 
 // Переменная, которая хранит время последнего скана, известное ЭТОЙ странице
 // При загрузке страницы берем его из PHP
-let lastKnownSyncTime = "<?= file_exists('last_scan_sync.txt') ? file_get_contents('last_scan_sync.txt') : '' ?>";
+// let lastKnownSyncTime = "<?= file_exists('last_scan_sync.txt') ? file_get_contents('last_scan_sync.txt') : '' ?>";
+// let notificationShown = false; // Флаг для контроля показа
 
-function checkGlobalUpdate() {
-    // Спрашиваем статус, передав параметр для синхронизации
-    fetch('ajax_scan.php?check_status=1&get_sync=1')
-    .then(r => r.json())
-    .then(data => {
-        // Если на сервере время скана новее, чем то, что мы запомнили при загрузке
-        if (data.global_sync && data.global_sync !== lastKnownSyncTime) {
-            showUpdateNotify();
-        }
-    })
-    .catch(err => console.log("Ошибка проверки обновлений"));
-}
+// function checkGlobalUpdate() {
+//     fetch('ajax_scan.php?check_status=1&get_sync=1')
+//     .then(r => r.json())
+//     .then(data => {
+//         // Если на сервере время скана новее
+//         if (data.global_sync && data.global_sync !== lastKnownSyncTime) {
+//             showUpdateNotify();
+//             // ✅ ИСПРАВЛЕНИЕ: Обновляем время, чтобы не показывать уведомление снова
+//             lastKnownSyncTime = data.global_sync;
+//             notificationShown = true; // Показываем только один раз до перезагрузки
+//         }
+//     })
+//     .catch(err => console.log("Ошибка проверки обновлений:", err));
+// }
 
-function showUpdateNotify() {
-    // Если плашка уже висит — ничего не делаем
-    if (document.getElementById('sync-notify')) return;
+// function showUpdateNotify() {
+//     // Если плашка уже висит — ничего не делаем
+//     if (document.getElementById('sync-notify')) return;
 
-    const notify = document.createElement('div');
-    notify.id = 'sync-notify';
-    notify.innerHTML = `
-        <div onclick="location.reload()" style="
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-            background: #4F46E5; color: white; padding: 14px 28px;
-            border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-            z-index: 9999; cursor: pointer; display: flex; align-items: center;
-            gap: 12px; font-weight: 500; animation: slideUp 0.4s ease-out;
-        ">
-            <span class="material-icons-round" style="animation: spin 2s infinite linear;">refresh</span>
-            Данные обновились. Нажмите, чтобы увидеть изменения
-        </div>
-    `;
-    document.body.appendChild(notify);
-}
+//     const notify = document.createElement('div');
+//     notify.id = 'sync-notify';
+//     notify.innerHTML = `
+//         <div onclick="location.reload()" style="
+//             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
+//             background: #4F46E5; color: white; padding: 14px 28px;
+//             border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+//             z-index: 9999; cursor: pointer; display: flex; align-items: center;
+//             gap: 12px; font-weight: 500; animation: slideUp 0.4s ease-out;
+//         ">
+//             <span class="material-icons-round" style="animation: spin 2s infinite linear;">refresh</span>
+//             Данные обновились. Нажмите, чтобы увидеть изменения
+//         </div>
+//     `;
+//     document.body.appendChild(notify);
+// }
 
-// Запускаем проверку каждые 30 секунд
-setInterval(checkGlobalUpdate, 10000);
+// // Добавьте CSS для анимации
+// const style = document.createElement('style');
+// style.textContent = `
+//     @keyframes slideUp {
+//         from { transform: translate(-50%, 100px); opacity: 0; }
+//         to { transform: translate(-50%, 0); opacity: 1; }
+//     }
+//     @keyframes spin {
+//         from { transform: rotate(0deg); }
+//         to { transform: rotate(360deg); }
+//     }
+// `;
+// document.head.appendChild(style);
+
+// // Запускаем проверку каждые 10 секунд
+// setInterval(checkGlobalUpdate, 10000);
 
 
 
 
 
-
-
-// кнопка копировать путь в карточке с ифой о файле
+// КНОПКА КОПИРОВАТЬ ПУТЬ в карточке с ифой о файле
 function copyPath() {
     const pathText = document.getElementById('infoFullPath').innerText;
     navigator.clipboard.writeText(pathText).then(() => {
@@ -383,6 +443,14 @@ function formatAudioChannels(channels) {
     return channelMap[channels] || `${channels} каналов`;
 }
 
+function formatBytes(bytes, decimals = 2) {
+    if (!bytes || bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
 
 // Загрузка метаданных видео
 function loadVideoMetadata(fileId) {

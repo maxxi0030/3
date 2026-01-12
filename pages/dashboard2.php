@@ -1,50 +1,94 @@
 <?php
 
+// варик с БД
 
-
-// ЗАГРУЗКА ДАННЫХ
-$json_file = 'data.json';
-$all_files = [];
 $stats = [
-    'total' => 0, // всего активных файлов 
-    'deleted' => 0,
-    'moved' => 0,
-    'new' => 0,
+    'total' => 0, 
     'size_gb' => 0
 ];
 
+// 1. ПОДСЧЕТ СТАТИСТИКИ (через SQL быстрее, чем через PHP цикл)
+$statQuery = $pdo->query("
+    SELECT 
+        COUNT(*) as total, 
+        SUM(file_size) as total_bytes 
+    FROM files 
+    WHERE file_status NOT IN ('deleted', 'source_off')
+");
+$statData = $statQuery->fetch();
+
+$stats['total'] = $statData['total'] ?? 0;
+$stats['size_gb'] = round(($statData['total_bytes'] ?? 0) / 1073741824, 2);
 
 
-// проверяем существует ли ваще файл
-if (file_exists($json_file)) {
-    $content = file_get_contents($json_file);
-    $decoded = json_decode($content, true);
-    if (is_array($decoded)) {
-        $all_files = $decoded;
-    }
+// 2. ПОИСК И ФИЛЬТРАЦИЯ
+$search = isset($_GET['search']) ? trim($_GET['search']) : '';
+$files = [];
+
+if ($search !== '') {
+    // Поиск по имени файла (регистронезависимый в PostgreSQL через ILIKE)
+    $stmt = $pdo->prepare("
+        SELECT * FROM files 
+        WHERE file_name ILIKE :search 
+        ORDER BY created_at DESC 
+        LIMIT 100
+    ");
+    $stmt->execute(['search' => "%$search%"]);
+    $files = $stmt->fetchAll();
+} else {
+    // Если поиска нет, берем последние 50 файлов
+    $stmt = $pdo->query("SELECT * FROM files ORDER BY created_at DESC LIMIT 50");
+    $files = $stmt->fetchAll();
 }
 
 
-// ПОДСЧЕТ СТАТИСТИКИ ДЛЯ шапки
-foreach ($all_files as $f) {
-    // Пропускаем битые записи - если статуса нет - то пропускаем чтобы не сломать статистику
-    if (!isset($f['status'])) continue;
 
-    if ($f['status'] !== 'deleted' && $f['status'] !== 'source_off') {
-        $stats['total']++;
-        // Суммируем размер (грубо, в байтах, если они есть)
-        if (isset($f['bytes'])) {
-            $stats['size_gb'] += $f['bytes'];
-        }
-    }
+
+// СТАРЫЙ НИЩИЙ ВАРИАНТ С ДЖСОН
+
+// ЗАГРУЗКА ДАННЫХ
+// $json_file = 'data.json';
+// $all_files = [];
+
+// $stats = [
+//     'total' => 0, // всего активных файлов 
+//     'deleted' => 0,
+//     'moved' => 0,
+//     'new' => 0,
+//     'size_gb' => 0
+// ];
+
+
+// проверяем существует ли ваще файл
+// if (file_exists($json_file)) {
+//     $content = file_get_contents($json_file);
+//     $decoded = json_decode($content, true);
+//     if (is_array($decoded)) {
+//         $all_files = $decoded;
+//     }
+// }
+
+
+// ПОДСЧЕТ СТАТИСТИКИ ДЛЯ шапки
+// foreach ($all_files as $f) {
+//     // Пропускаем битые записи - если статуса нет - то пропускаем чтобы не сломать статистику
+//     if (!isset($f['status'])) continue;
+
+//     if ($f['status'] !== 'deleted' && $f['status'] !== 'source_off') {
+//         $stats['total']++;
+//         // Суммируем размер (грубо, в байтах, если они есть)
+//         if (isset($f['bytes'])) {
+//             $stats['size_gb'] += $f['bytes'];
+//         }
+//     }
 
     // можно считать еще все перемещенные и удаленные, но думаю этому нету места на дэшборде
 
     // if ($f['status'] === 'deleted') $stats['deleted']++;
     // if ($f['status'] === 'moved') $stats['moved']++;
-}
+// }
 // переводим байты в ГБ для отображения
-$stats['size_gb'] = round($stats['size_gb'] / 1073741824, 2);
+// $stats['size_gb'] = round($stats['size_gb'] / 1073741824, 2);
 
 
 
@@ -64,23 +108,23 @@ $stats['size_gb'] = round($stats['size_gb'] / 1073741824, 2);
 // но пока что оставим это 
 
 
-$search = isset($_GET['search']) ? trim($_GET['search']) : '';
-$status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
+// $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+// $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
 
-// ВАЖНО: Сначала проверяем, есть ли поиск
-if ($search !== '') {
-    // Если есть поиск - фильтруем
-    foreach ($all_files as $f) {
-        // Проверка на целостность данных перед поиском
-        if (!isset($f['name'])) continue;
+// // ВАЖНО: Сначала проверяем, есть ли поиск
+// if ($search !== '') {
+//     // Если есть поиск - фильтруем
+//     foreach ($all_files as $f) {
+//         // Проверка на целостность данных перед поиском
+//         if (!isset($f['name'])) continue;
 
-        if (mb_stripos($f['name'], $search) !== false) {
-            $files[] = $f;
-        }
-    }
-} else {
-    $files = $all_files;
-}
+//         if (mb_stripos($f['name'], $search) !== false) {
+//             $files[] = $f;
+//         }
+//     }
+// } else {
+//     $files = $all_files;
+// }
 
 
 
@@ -231,11 +275,38 @@ if ($search !== '') {
 
                         <!-- // ЗАЩИТА: Если запись битая, пропускаем её, чтобы не ломать верстку -->
                         <?php 
-                            if (!isset($file['name']) || !isset($file['path'])) continue; 
+                            // 1. Считаем размер
+                            $formattedSize = isset($file['file_size']) 
+                                ? round($file['file_size'] / 1048576, 2) . ' MB' 
+                                : '0 MB';
+                            
+                            // 2. Форматируем дату
+                            $formattedDate = date('d.m.Y H:i', strtotime($file['created_at']));
+
+                            // 3. Текст статуса (для отображения)
+                            $statusMap = [
+                                'new'     => 'Новый', 
+                                'active'  => 'Ок', 
+                                'deleted' => 'Удален', 
+                                'moved'   => 'Перемещен'
+                            ];
+                            $statusText = $statusMap[$file['file_status']] ?? $file['file_status'];
+
+                            // 4. КАРТА КЛАССОВ (Чтобы цвета из твоего CSS заработали)
+                            $classMap = [
+                                'active'  => 'exists',  // БД 'active' -> CSS '.badge.exists'
+                                'new'     => 'new',     // БД 'new'    -> CSS '.badge.new'
+                                'deleted' => 'deleted', // БД 'deleted'-> CSS '.badge.deleted'
+                                'moved'   => 'moved'    // БД 'moved'  -> CSS '.badge.moved'
+                            ];
+                            $currentClass = $classMap[$file['file_status']] ?? 'source_off';
+                            
+                            // Защита: пропускаем битые записи
+                            if (!isset($file['file_name'])) continue;
                         ?>
 
 
-                        <tr class="<?= $file['status'] === 'deleted' ? 'row-deleted' : '' ?>">
+                        <tr class="<?= $file['file_status'] === 'deleted' ? 'row-deleted' : '' ?>">
                             
 
                             <!-- имя файла -->
@@ -243,31 +314,31 @@ if ($search !== '') {
                                 <div class="file-icon">
                                     <span class="material-icons-round">description</span>
                                 </div>
-                                <?= htmlspecialchars($file['name'], ENT_QUOTES, 'UTF-8') ?>
+                                <?= htmlspecialchars($file['file_name'], ENT_QUOTES, 'UTF-8') ?>
                             </td>
                                 
                             <!-- путь файла -->
 
                                 
                             <!-- размер файла -->
-                            <td class="cell-size hide-mobile"><?= $file['size'] ?? '-' ?></td>
+                            <td class="cell-size hide-mobile"><?= $formattedSize ?></td>
                                 
 
                             <!-- для стилей -->
                             <td>
-                                <span class="badge <?= $file['status'] ?? 'unknown' ?>">
-                                    <?= $file['status_text'] ?? '???' ?>
+                                <span class="badge <?= htmlspecialchars($currentClass) ?>">
+                                    <?= htmlspecialchars($statusText) ?>
                                 </span>
                             </td>
                             
                             <!-- Дата добавления -->
-                            <td class="cell-date"><?= $file['date'] ?? '-' ?></td>
+                            <td class="cell-date"><?= $formattedDate ?></td>
                             
                             <!-- Действия -->
                             <td>
                                 <div class="action-group">
-                                    <!-- открытие окна с инфой -->
-                                    <button class="btn-icon" onclick="showFileInfo(this, <?= htmlspecialchars(json_encode($file)) ?>)" title="Информация">
+                                    <!-- открытие окна с инфой (функция посредник)-->
+                                    <button class="btn-icon" onclick="loadFileAndShowInfo(this, <?= $file['id'] ?>)" title="Информация">
                                         <span class="material-icons-round">info</span>
                                     </button>
 
@@ -275,7 +346,7 @@ if ($search !== '') {
                                     <!-- кнопка открыть папку с файлом -->
                                     <button class="btn-icon" 
                                             title="Открыть папку" 
-                                            onclick="openInExplorer('<?php echo addslashes($file['path']); ?>')">
+                                            onclick="openInExplorer('<?php echo addslashes($file['file_path']); ?>')">
                                         <span class="material-icons-round">folder</span>
                                     </button>
 

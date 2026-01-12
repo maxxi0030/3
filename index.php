@@ -1,6 +1,8 @@
 <?php
 session_start();
 
+require_once 'db/db_connect.php';
+
 // Получаем текущую страницу из URL, по умолчанию 'dashboard'
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard2';
 

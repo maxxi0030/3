@@ -1,14 +1,15 @@
 <?php
+// ДЛЯ ДЖСОН
 // Поиск данных конкретного файла, если передан info_id
-$current_file = null;
-if ($show_info && isset($files)) {
-    foreach ($files as $f) {
-        if ($f['id'] == $show_info) {
-            $current_file = $f;
-            break;
-        }
-    }
-}
+// $current_file = null;
+// if ($show_info && isset($files)) {
+//     foreach ($files as $f) {
+//         if ($f['id'] == $show_info) {
+//             $current_file = $f;
+//             break;
+//         }
+//     }
+// }
 ?>
 
 
@@ -41,11 +42,11 @@ if ($show_info && isset($files)) {
             </div>
             <div class="file-detail-row">
                 <span class="file-detail-label">Дата создания:</span>
-                <span id="infoStatus" class="file-detail-value badge"></span>
+                <span id="infoCreated" class="file-detail-value badge"></span>
             </div>
             <div class="file-detail-row">
                 <span class="file-detail-label">Дата изменения:</span>
-                <span class="file-detail-value" id="infoCreated"></span>
+                <span class="file-detail-value" id="infoUpdated"></span>
             </div>
 
         </div>
