@@ -5,7 +5,7 @@ function buildFilters(array $params): array {
     $bindings = [];
     $order_by = 'created_at DESC';
 
-    // Поиск по имени (LIKE, регистронезависимо для Postgres — ILIKE)
+    // Поиск по имени
     if (!empty($params['search'])) {
         $where[] = "file_name ILIKE :search";
         $bindings[':search'] = '%' . $params['search'] . '%';
@@ -19,10 +19,10 @@ function buildFilters(array $params): array {
     }
 
     // Фильтр по префиксу пути (например, источник)
-    if (!empty($params['path_prefix'])) {
-        $where[] = "file_path LIKE :path_prefix";
-        $bindings[':path_prefix'] = rtrim($params['path_prefix'], '/') . '%';
-    }
+    // if (!empty($params['path_prefix'])) {
+    //     $where[] = "file_path LIKE :path_prefix";
+    //     $bindings[':path_prefix'] = rtrim($params['path_prefix'], '/') . '%';
+    // }
 
     // Сортировки (предусмотренные варианты)
     if (!empty($params['sort'])) {
@@ -37,14 +37,14 @@ function buildFilters(array $params): array {
     }
 
     // Доп. фильтры: min/max размера (в байтах)
-    if (isset($params['size_min']) && $params['size_min'] !== '') {
-        $where[] = "file_size >= :size_min";
-        $bindings[':size_min'] = (int)$params['size_min'];
-    }
-    if (isset($params['size_max']) && $params['size_max'] !== '') {
-        $where[] = "file_size <= :size_max";
-        $bindings[':size_max'] = (int)$params['size_max'];
-    }
+    // if (isset($params['size_min']) && $params['size_min'] !== '') {
+    //     $where[] = "file_size >= :size_min";
+    //     $bindings[':size_min'] = (int)$params['size_min'];
+    // }
+    // if (isset($params['size_max']) && $params['size_max'] !== '') {
+    //     $where[] = "file_size <= :size_max";
+    //     $bindings[':size_max'] = (int)$params['size_max'];
+    // }
 
     $where_sql = '';
     if (!empty($where)) {

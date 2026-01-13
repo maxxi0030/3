@@ -1,0 +1,60 @@
+
+<!-- тут еще все будет добавляться и менять потому что появится отдельная логика для поиска и фильтрации -->
+<!-- <div class="toolbar"> -->
+    <!-- поисковая строка и фильтры в одной форме (поиск слева, фильтры справа) -->
+    <form action="" method="GET" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <div class="search-wrap">
+            <input type="hidden" name="page" value="dashboard">
+            <span class="material-icons-round">search</span>
+            <input type="text" name="search" id="searchInput" placeholder="Поиск файла..." value="<?= htmlspecialchars($search) ?>"  autocomplete="off">
+            <button type="submit" class="btn-search">Найти</button>
+            <?php if($search): ?>
+                <a href="?page=dashboard" class="btn-icon" title="Сбросить"><span class="material-icons-round">close</span></a>
+            <?php endif; ?>
+        </div>
+
+        <div class="filters" style="display:flex;gap:8px;align-items:center">
+            <select name="status" aria-label="Статус">
+                <option value="" <?= $params['status'] === '' ? 'selected' : '' ?>>Все статусы</option>
+                <option value="active" <?= $params['status'] === 'active' ? 'selected' : '' ?>>Ок</option>
+                <option value="new" <?= $params['status'] === 'new' ? 'selected' : '' ?>>Новый</option>
+                <option value="deleted" <?= $params['status'] === 'deleted' ? 'selected' : '' ?>>Удален</option>
+                <option value="moved" <?= $params['status'] === 'moved' ? 'selected' : '' ?>>Перемещен</option>
+                <option value="updated" <?= $params['status'] === 'updated' ? 'selected' : '' ?>>Обновлен</option>
+                <option value="source_off" <?= $params['status'] === 'source_off' ? 'selected' : '' ?>>Источник отключен</option>
+            </select>
+
+            <select name="sort" aria-label="Сортировка">
+                <option value="" <?= $params['sort'] === '' ? 'selected' : '' ?>>По умолчанию</option>
+                <option value="date_desc" <?= $params['sort'] === 'date_desc' ? 'selected' : '' ?>>Дата, новые</option>
+                <option value="date_asc" <?= $params['sort'] === 'date_asc' ? 'selected' : '' ?>>Дата, старые</option>
+                <option value="size_desc" <?= $params['sort'] === 'size_desc' ? 'selected' : '' ?>>Размер ↓</option>
+                <option value="size_asc" <?= $params['sort'] === 'size_asc' ? 'selected' : '' ?>>Размер ↑</option>
+                <option value="name_asc" <?= $params['sort'] === 'name_asc' ? 'selected' : '' ?>>Имя A→Z</option>
+                <option value="name_desc" <?= $params['sort'] === 'name_desc' ? 'selected' : '' ?>>Имя Z→A</option>
+            </select>
+
+            <input type="number" name="size_min" placeholder="min" style="width:100px" value="<?= (isset($_GET['size_min']) && $_GET['size_min'] !== '') ? htmlspecialchars((int)$_GET['size_min']) : '' ?>">
+            <input type="number" name="size_max" placeholder="max" style="width:100px" value="<?= (isset($_GET['size_max']) && $_GET['size_max'] !== '') ? htmlspecialchars((int)$_GET['size_max']) : '' ?>">
+
+            <button type="submit" class="btn-search">Применить</button>
+        </div>
+    </form>
+    
+
+
+    <!-- фильтры -->
+    <!-- <div class="filters"> -->
+        <!-- по статусу -->
+
+        <!-- по дате -->
+
+        <!-- по размеру -->
+
+        <!-- по типу файла -->
+
+
+
+    <!-- </div> -->
+
+<!-- </div> -->

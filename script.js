@@ -1,4 +1,6 @@
-// боковое меню
+// ====================================================================
+// SIDEBAR (показываем или скрываем боковое меню)
+// ====================================================================
 document.getElementById('toggleSidebar').addEventListener('click', () => {
     document.getElementById('sidebar').classList.toggle('collapsed');
 });
@@ -12,7 +14,9 @@ document.getElementById('toggleSidebar').addEventListener('click', () => {
 
 
 
-// функция для открытися папки с файлом
+// ====================================================================
+// ФУНКЦИИ ДЛЯ КНОПКИ "ОТКРЫТЬ В ЭКСПЛОРЕРЕ"
+// ====================================================================
 function openInExplorer(filePath) {
     // Создаем объект формы для POST запроса
     const formData = new FormData();
@@ -39,6 +43,9 @@ function openInExplorer(filePath) {
 
 
 
+// ====================================================================
+// ФУНКЦИИ ДЛЯ ПАНЕЛИ С ИНФО О ФАЙЛЕ
+// ====================================================================
 
 // функция для показа панели с инфой о файле без перезагрузки страницы
 function showFileInfo(buttonElement, file) {
@@ -149,6 +156,13 @@ function loadFileAndShowInfo(buttonElement, fileId) {
         });
 }
 
+// кнопка копировать путь в карточке с ифой о файле
+function copyPath() {
+    const pathText = document.getElementById('infoFullPath').innerText;
+    navigator.clipboard.writeText(pathText).then(() => {
+        // Можно добавить визуальный эффект, например, сменить иконку на галочку
+    });
+}
 
 
 
@@ -156,6 +170,10 @@ function loadFileAndShowInfo(buttonElement, fileId) {
 
 
 
+
+// ====================================================================
+// ФУНКЦИИ ДЛЯ КНОПКИ СКАНИРОВАНИЯ
+// ====================================================================
 
 // светофор для кнопок скана
 // function startScan(btn) {
@@ -210,7 +228,7 @@ function loadFileAndShowInfo(buttonElement, fileId) {
 
 
 
-// Функция только для изменения внешнего вида кнопок
+// Функция только для изменения внешнего вида кнопок скана 
 function setScanState(isLoading) {
     const allScanBtns = document.querySelectorAll('[onclick="startScan(this)"]');
     allScanBtns.forEach(b => {
@@ -241,7 +259,7 @@ function startScan(btn) {
     const container = document.getElementById('ajax-message-container');
     if (container) container.innerHTML = '';
 
-    fetch('ajax_scan.php', { method: 'POST' })
+    fetch('api/ajax_scan.php', { method: 'POST' })
     .then(response => response.json())
     .then(data => {
         if (data.status === 'success') {
@@ -274,10 +292,6 @@ function startScan(btn) {
     .catch(error => console.error('Error:', error))
     .finally(() => setScanState(false));
 }
-
-
-
-
 
 
 
@@ -376,13 +390,6 @@ window.addEventListener('load', function() {
 
 
 
-// КНОПКА КОПИРОВАТЬ ПУТЬ в карточке с ифой о файле
-function copyPath() {
-    const pathText = document.getElementById('infoFullPath').innerText;
-    navigator.clipboard.writeText(pathText).then(() => {
-        // Можно добавить визуальный эффект, например, сменить иконку на галочку
-    });
-}
 
 
 
@@ -390,15 +397,10 @@ function copyPath() {
 
 
 
+// ====================================================================
+// ФУНКЦИИ ДЛЯ МЕТАДАННЫХ ВИДЕО 
+// ====================================================================
 
-
-
-
-
-
-
-
-// ДЛЯ МЕТАДАННЫХ ВИДЕО 
 // список расширений для видео
 const VIDEO_EXTENSIONS = [
     '.mp4', '.avi', '.mkv', '.mov', '.webm', '.flv', '.wmv', '.m4v', 
@@ -505,3 +507,66 @@ function loadVideoMetadata(fileId) {
             errorEl.style.display = 'flex';
         });
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+// ====================================================================
+// ФУНКЦИИ ДЛЯ УПРАВЛЕНИЯ КЛИЕНТАМИ
+// ====================================================================
+
+
+document.querySelectorAll('[data-client-name]').forEach(input => {
+    input.addEventListener('blur', () => {
+        fetch('/clients.ajax.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'rename',
+                id: input.dataset.clientName,
+                name: input.value
+            })
+        });
+    });
+});
+
+document.querySelectorAll('[data-delete-client]').forEach(btn => {
+    btn.onclick = () => {
+        if (!confirm('Удалить клиента?')) return;
+
+        fetch('/clients.ajax.php', {
+            method: 'POST',
+            body: new URLSearchParams({
+                action: 'delete',
+                id: btn.dataset.deleteClient
+            })
+        }).then(() => location.reload());
+    };
+});

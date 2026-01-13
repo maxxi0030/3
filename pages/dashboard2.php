@@ -179,7 +179,7 @@ $files = $stmt->fetchAll();
 ?>
 
 
-
+<!-- 
 <!DOCTYPE html>
 <html lang="ru">
 <head>
@@ -187,18 +187,18 @@ $files = $stmt->fetchAll();
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Файловое хранилище</title>
     
-    <!-- Material Icons -->
+
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
     
-    <!-- Google Fonts -->
+
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     
-    <!-- Основные стили -->
+
     <link rel="stylesheet" href="style.css">
 
 
 </head>
-<body>
+<body> -->
 
 
 <!-- ШАПКА ДЭШБОРДА -->
@@ -232,22 +232,42 @@ $files = $stmt->fetchAll();
 <!-- ПАНЕЛЬ С ПОИСКОМ И ФИЛЬТРАЦИЕЙ -->
 
 <!-- ЭТО ВСЕ У НАС ПОЯВЛЯЕТСЯ ЕСЛИ ЕСТЬ ХОТЬ ОДИН ФАЙЛ -->
-
-<!-- тут еще все будет добавляться и менять потому что появится отдельная логика для поиска и фильтрации -->
 <div class="toolbar">
-    <!-- поисковая строка и фильтры в одной форме (поиск слева, фильтры справа) -->
-    <form action="" method="GET" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+
+    <!-- Форма поиска -->
+    <form action="" method="GET" class="search-form">
+        <input type="hidden" name="page" value="dashboard">
+
         <div class="search-wrap">
-            <input type="hidden" name="page" value="dashboard">
             <span class="material-icons-round">search</span>
-            <input type="text" name="search" id="searchInput" placeholder="Поиск файла..." value="<?= htmlspecialchars($search) ?>"  autocomplete="off">
+
+            <input
+                type="text"
+                name="search"
+                id="searchInput"
+                placeholder="Поиск файла..."
+                value="<?= htmlspecialchars($search) ?>"
+                autocomplete="off"
+            >
+
             <button type="submit" class="btn-search">Найти</button>
-            <?php if($search): ?>
-                <a href="?page=dashboard" class="btn-icon" title="Сбросить"><span class="material-icons-round">close</span></a>
+
+            <?php if ($search): ?>
+                <a href="?page=dashboard" class="btn-icon" title="Сбросить">
+                    <span class="material-icons-round">close</span>
+                </a>
             <?php endif; ?>
         </div>
+    </form>
 
-        <div class="filters" style="display:flex;gap:8px;align-items:center">
+
+    <!-- Форма фильтров и сортировки -->
+    <form action="" method="GET" class="filters-form">
+        <input type="hidden" name="page" value="dashboard">
+        <input type="hidden" name="search" value="<?= htmlspecialchars($search) ?>">
+
+        <div class="filters">
+
             <select name="status" aria-label="Статус">
                 <option value="" <?= $params['status'] === '' ? 'selected' : '' ?>>Все статусы</option>
                 <option value="active" <?= $params['status'] === 'active' ? 'selected' : '' ?>>Ок</option>
@@ -268,30 +288,13 @@ $files = $stmt->fetchAll();
                 <option value="name_desc" <?= $params['sort'] === 'name_desc' ? 'selected' : '' ?>>Имя Z→A</option>
             </select>
 
-            <input type="number" name="size_min" placeholder="min" style="width:100px" value="<?= (isset($_GET['size_min']) && $_GET['size_min'] !== '') ? htmlspecialchars((int)$_GET['size_min']) : '' ?>">
-            <input type="number" name="size_max" placeholder="max" style="width:100px" value="<?= (isset($_GET['size_max']) && $_GET['size_max'] !== '') ? htmlspecialchars((int)$_GET['size_max']) : '' ?>">
 
             <button type="submit" class="btn-search">Применить</button>
         </div>
     </form>
-    
-
-
-    <!-- фильтры -->
-    <div class="filters">
-        <!-- по статусу -->
-
-        <!-- по дате -->
-
-        <!-- по размеру -->
-
-        <!-- по типу файла -->
-
-
-
-    </div>
 
 </div>
+
 
 
 
@@ -306,6 +309,7 @@ $files = $stmt->fetchAll();
             <thead>
                 <tr>
                     <th>Имя файла</th>
+                    <!-- <th width="200">Клиент</th> -->
                     <!-- <th class="hide-mobile">Путь</th> -->
                     <th width="100" class="hide-mobile">Размер</th>
                     <th width="120">Статус</th>
@@ -360,6 +364,9 @@ $files = $stmt->fetchAll();
                                 'updated' => 'updated'
                             ];
                             $currentClass = $classMap[$file['file_status']] ?? 'source_off';
+
+
+
                             
                             // Защита: пропускаем битые записи
                             if (!isset($file['file_name'])) continue;
@@ -376,6 +383,9 @@ $files = $stmt->fetchAll();
                                 </div>
                                 <?= htmlspecialchars($file['file_name'], ENT_QUOTES, 'UTF-8') ?>
                             </td>
+
+
+
                                 
                             <!-- путь файла -->
 
@@ -422,11 +432,67 @@ $files = $stmt->fetchAll();
 
     <!-- кнопка загрузить еще если есть еще файлы -->
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    const form = document.getElementById('filtersForm');
+
+    // автосабмит
+    form.querySelectorAll('[data-autosubmit]').forEach(el => {
+        el.addEventListener('change', () => {
+            cleanAndSubmit(form);
+        });
+    });
+
+    function cleanAndSubmit(form) {
+        [...form.elements].forEach(el => {
+            if (
+                el.name &&
+                (
+                    el.value === '' ||
+                    el.type === 'number' && el.value === null
+                )
+            ) {
+                el.removeAttribute('name');
+            }
+        });
+
+        form.submit();
+    }
+});
+
+// пробуем мгновенное сохранение
+document.addEventListener('DOMContentLoaded', () => {
+
+    document.querySelectorAll('.client-select').forEach(select => {
+        select.addEventListener('change', () => {
+
+            fetch('/ajax/files.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: new URLSearchParams({
+                    action: 'set_client',
+                    file_id: select.dataset.fileId,
+                    client_id: select.value
+                })
+            });
+
+        });
+    });
+
+});
+
+
+</script>
 
 
 
 
-
+<!-- 
 
 </body>
-</html>
+</html> -->
+
+<!-- автосамбит для фильтров -->
+ <!-- УРЛ красивые и понятные у фильтров -->
