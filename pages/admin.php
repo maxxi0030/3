@@ -20,8 +20,25 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             try {
                 $stmt = $pdo->prepare("INSERT INTO scan_paths (path) VALUES (?)");
                 $stmt->execute([$new_path]);
+
+                // Получаем новый id добавленного пути
+                $newScanPathId = $pdo->lastInsertId();
+
+                // Попытаемся восстановить связь для файлов, которые раньше были от этого источника
+                // и при удалении получили статус 'source_off'.
+                $updateFiles = $pdo->prepare(
+                    "UPDATE files SET scan_path_id = ?, file_status = 'active', updated_at = CURRENT_TIMESTAMP WHERE file_path LIKE ? AND file_status = 'source_off'"
+                );
+                $like = $new_path . '%';
+                $updateFiles->execute([$newScanPathId, $like]);
+
+                $affected = $updateFiles->rowCount();
+
                 $message = "Путь успешно добавлен.";
-                
+                if ($affected > 0) {
+                    $message .= " Вернули статус для {$affected} файлов.";
+                }
+
                 // Обновляем список для вывода ниже
                 $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
             } catch (PDOException $e) {
@@ -31,10 +48,48 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         }
     }
 
+
+
+
+
+    // УДАЛЕНИЕ ПУТИ
+    // if ($_POST['action'] === 'delete_path') {
+    //     $id_to_delete = (int)$_POST['path_id']; // Удаляем по ID
+        
+    //     $stmt = $pdo->prepare("DELETE FROM scan_paths WHERE id = ?");
+    //     $stmt->execute([$id_to_delete]);
+    //     $message = "Путь удален из источников.";
+        
+    //     // Обновляем список
+    //     $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
+    // }
+
+
     // УДАЛЕНИЕ ПУТИ
     if ($_POST['action'] === 'delete_path') {
-        $id_to_delete = (int)$_POST['path_id']; // Удаляем по ID, это надежнее
+        $id_to_delete = (int)$_POST['path_id']; // Удаляем по ID
         
+
+        
+        // 1. Помечаем все файлы из этого источника как 'source_off'
+        $markFilesStmt = $pdo->prepare("
+            UPDATE files 
+            SET file_status = 'source_off', 
+                updated_at = CURRENT_TIMESTAMP 
+            WHERE scan_path_id = ?
+        ");
+        $markFilesStmt->execute([$id_to_delete]);
+        
+        // 2. Убираем связь с удаляемым путём (чтобы не нарушать foreign key)
+        $unlinkFilesStmt = $pdo->prepare("
+            UPDATE files 
+            SET scan_path_id = NULL 
+            WHERE scan_path_id = ?
+        ");
+        $unlinkFilesStmt->execute([$id_to_delete]);
+        
+        
+        // 3. Теперь можно безопасно удалить путь
         $stmt = $pdo->prepare("DELETE FROM scan_paths WHERE id = ?");
         $stmt->execute([$id_to_delete]);
         $message = "Путь удален из источников.";

@@ -7,7 +7,7 @@ require_once 'db/db_connect.php';
 $page = isset($_GET['page']) ? $_GET['page'] : 'dashboard2';
 
 // Список разрешенных страниц (белый список для безопасности)
-$allowed_pages = ['dashboard2', 'history', 'admin'];
+$allowed_pages = ['dashboard2', 'history', 'admin', 'clients'];
 if (!in_array($page, $allowed_pages)) {
     $page = 'dashboard2';
 }

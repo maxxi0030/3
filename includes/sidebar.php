@@ -18,6 +18,10 @@
             <span class="material-icons-round">history</span>
             <span class="link-text">История</span>
         </a>
+        <a href="?page=clients" class="nav-item <?= $page == 'clients' ? 'active' : '' ?>">
+            <span class="material-icons-round">people</span>
+            <span class="link-text">Клиенты</span>
+        </a>
     </nav>
 
     <div class="sidebar-footer">

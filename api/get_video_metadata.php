@@ -1,7 +1,6 @@
 <?php
 header('Content-Type: application/json');
 
-// Эмулируем успешный ответ, чтобы JS не ругался
 echo json_encode([
     'success' => true,
     'metadata' => [

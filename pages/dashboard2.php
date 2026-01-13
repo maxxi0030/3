@@ -41,6 +41,35 @@ if ($search !== '') {
     $files = $stmt->fetchAll();
 }
 
+$files = [];
+
+// Подключаем сборщик условий фильтрации
+require_once 'bc/filter_sort.php';
+
+// Собираем параметры от GET
+$params = [
+    'search' => isset($_GET['search']) ? trim($_GET['search']) : '',
+    'status' => isset($_GET['status']) ? trim($_GET['status']) : '',
+    'sort' => isset($_GET['sort']) ? trim($_GET['sort']) : '',
+    'size_min' => isset($_GET['size_min']) ? trim($_GET['size_min']) : '',
+    'size_max' => isset($_GET['size_max']) ? trim($_GET['size_max']) : ''
+];
+
+// Преобразуем размеры из MB (пользователь вводит MB) в байты для сравнения в БД
+if ($params['size_min'] !== '') {
+    $params['size_min'] = (int)$params['size_min'] * 1048576;
+}
+if ($params['size_max'] !== '') {
+    $params['size_max'] = (int)$params['size_max'] * 1048576;
+}
+
+$filterParts = buildFilters($params);
+
+$sql = "SELECT * FROM files " . $filterParts['where'] . " ORDER BY " . $filterParts['order_by'] . " LIMIT 100";
+$stmt = $pdo->prepare($sql);
+$stmt->execute($filterParts['bindings']);
+$files = $stmt->fetchAll();
+
 
 
 
@@ -206,15 +235,44 @@ if ($search !== '') {
 
 <!-- тут еще все будет добавляться и менять потому что появится отдельная логика для поиска и фильтрации -->
 <div class="toolbar">
-    <!-- поисковая строка -->
-    <form action="" method="GET" class="search-wrap">
-        <input type="hidden" name="page" value="dashboard">
-        <span class="material-icons-round">search</span>
-        <input type="text" name="search" id="searchInput" placeholder="Поиск файла..." value="<?= htmlspecialchars($search) ?>"  autocomplete="off" required>
-        <button type="submit" class="btn-search">Найти</button>
-        <?php if($search): ?>
-            <a href="?page=dashboard" class="btn-icon" title="Сбросить"><span class="material-icons-round">close</span></a>
-        <?php endif; ?>
+    <!-- поисковая строка и фильтры в одной форме (поиск слева, фильтры справа) -->
+    <form action="" method="GET" style="display:flex;justify-content:space-between;align-items:center;gap:12px;">
+        <div class="search-wrap">
+            <input type="hidden" name="page" value="dashboard">
+            <span class="material-icons-round">search</span>
+            <input type="text" name="search" id="searchInput" placeholder="Поиск файла..." value="<?= htmlspecialchars($search) ?>"  autocomplete="off">
+            <button type="submit" class="btn-search">Найти</button>
+            <?php if($search): ?>
+                <a href="?page=dashboard" class="btn-icon" title="Сбросить"><span class="material-icons-round">close</span></a>
+            <?php endif; ?>
+        </div>
+
+        <div class="filters" style="display:flex;gap:8px;align-items:center">
+            <select name="status" aria-label="Статус">
+                <option value="" <?= $params['status'] === '' ? 'selected' : '' ?>>Все статусы</option>
+                <option value="active" <?= $params['status'] === 'active' ? 'selected' : '' ?>>Ок</option>
+                <option value="new" <?= $params['status'] === 'new' ? 'selected' : '' ?>>Новый</option>
+                <option value="deleted" <?= $params['status'] === 'deleted' ? 'selected' : '' ?>>Удален</option>
+                <option value="moved" <?= $params['status'] === 'moved' ? 'selected' : '' ?>>Перемещен</option>
+                <option value="updated" <?= $params['status'] === 'updated' ? 'selected' : '' ?>>Обновлен</option>
+                <option value="source_off" <?= $params['status'] === 'source_off' ? 'selected' : '' ?>>Источник отключен</option>
+            </select>
+
+            <select name="sort" aria-label="Сортировка">
+                <option value="" <?= $params['sort'] === '' ? 'selected' : '' ?>>По умолчанию</option>
+                <option value="date_desc" <?= $params['sort'] === 'date_desc' ? 'selected' : '' ?>>Дата, новые</option>
+                <option value="date_asc" <?= $params['sort'] === 'date_asc' ? 'selected' : '' ?>>Дата, старые</option>
+                <option value="size_desc" <?= $params['sort'] === 'size_desc' ? 'selected' : '' ?>>Размер ↓</option>
+                <option value="size_asc" <?= $params['sort'] === 'size_asc' ? 'selected' : '' ?>>Размер ↑</option>
+                <option value="name_asc" <?= $params['sort'] === 'name_asc' ? 'selected' : '' ?>>Имя A→Z</option>
+                <option value="name_desc" <?= $params['sort'] === 'name_desc' ? 'selected' : '' ?>>Имя Z→A</option>
+            </select>
+
+            <input type="number" name="size_min" placeholder="min" style="width:100px" value="<?= (isset($_GET['size_min']) && $_GET['size_min'] !== '') ? htmlspecialchars((int)$_GET['size_min']) : '' ?>">
+            <input type="number" name="size_max" placeholder="max" style="width:100px" value="<?= (isset($_GET['size_max']) && $_GET['size_max'] !== '') ? htmlspecialchars((int)$_GET['size_max']) : '' ?>">
+
+            <button type="submit" class="btn-search">Применить</button>
+        </div>
     </form>
     
 
@@ -283,21 +341,23 @@ if ($search !== '') {
                             // 2. Форматируем дату
                             $formattedDate = date('d.m.Y H:i', strtotime($file['created_at']));
 
-                            // 3. Текст статуса (для отображения)
+                            // 3. отображаемй текст статуса 
                             $statusMap = [
                                 'new'     => 'Новый', 
                                 'active'  => 'Ок', 
                                 'deleted' => 'Удален', 
-                                'moved'   => 'Перемещен'
+                                'moved'   => 'Перемещен',
+                                'updated' => 'Обновлен'
                             ];
                             $statusText = $statusMap[$file['file_status']] ?? $file['file_status'];
 
-                            // 4. КАРТА КЛАССОВ (Чтобы цвета из твоего CSS заработали)
+                            // 4. КАРТА КЛАССОВ
                             $classMap = [
                                 'active'  => 'exists',  // БД 'active' -> CSS '.badge.exists'
                                 'new'     => 'new',     // БД 'new'    -> CSS '.badge.new'
                                 'deleted' => 'deleted', // БД 'deleted'-> CSS '.badge.deleted'
-                                'moved'   => 'moved'    // БД 'moved'  -> CSS '.badge.moved'
+                                'moved'   => 'moved',    // БД 'moved'  -> CSS '.badge.moved'
+                                'updated' => 'updated'
                             ];
                             $currentClass = $classMap[$file['file_status']] ?? 'source_off';
                             

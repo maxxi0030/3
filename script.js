@@ -390,6 +390,14 @@ function copyPath() {
 
 
 
+
+
+
+
+
+
+
+
 // ДЛЯ МЕТАДАННЫХ ВИДЕО 
 // список расширений для видео
 const VIDEO_EXTENSIONS = [
