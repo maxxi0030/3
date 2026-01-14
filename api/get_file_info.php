@@ -1,5 +1,6 @@
 <?php
-require_once 'db/db_connect.php';
+// require_once 'db/db_connect.php';
+require_once __DIR__ . '/../db/db_connect.php';
 
 header('Content-Type: application/json');
 

@@ -42,6 +42,18 @@ function openInExplorer(filePath) {
 
 
 
+// ====================================================================
+// ФУНКЦИИ ДЛЯ КНОПКИ ДОБАВИТЬ КЛИЕНТА
+// ====================================================================
+
+function addClient() {
+
+
+}
+
+
+
+
 
 // ====================================================================
 // ФУНКЦИИ ДЛЯ ПАНЕЛИ С ИНФО О ФАЙЛЕ
@@ -127,7 +139,7 @@ function closeFileInfo() {
 // Новая функция-посредник
 function loadFileAndShowInfo(buttonElement, fileId) {
     // 1. Идем на сервер за данными конкретного файла
-    fetch('get_file_info.php?id=' + fileId)
+    fetch('api/get_file_info.php?id=' + fileId)
         .then(response => response.json())
         .then(data => {
             // Переделываем названия полей из БД под те, что ждет твоя функция
@@ -278,7 +290,7 @@ function startScan(btn) {
                 container.innerHTML = `
                     <div class="info-alert" style="padding: 12px; background: #EEF2FF; color: var(--accent); border-radius: 12px; margin-bottom: 24px; border: 1px solid var(--border); animation: fadeIn 0.3s ease;">
                         <span class="material-icons-round" style="vertical-align: middle; font-size: 18px;">info</span>
-                        <b>${data.message}</b><br>${statsText}
+                        <b>Result</b><br>${statsText}
                     </div>
                 `;
             }
@@ -297,7 +309,7 @@ function startScan(btn) {
 
 // Проверка при загрузке
 window.addEventListener('load', function() {
-    fetch('ajax_scan.php?check_status=1')
+    fetch('api/ajax_scan.php?check_status=1')
     .then(r => r.json())
     .then(data => {
         if (data.scanning) {
@@ -543,30 +555,60 @@ function loadVideoMetadata(fileId) {
 // ФУНКЦИИ ДЛЯ УПРАВЛЕНИЯ КЛИЕНТАМИ
 // ====================================================================
 
-
-document.querySelectorAll('[data-client-name]').forEach(input => {
-    input.addEventListener('blur', () => {
-        fetch('/clients.ajax.php', {
-            method: 'POST',
-            body: new URLSearchParams({
-                action: 'rename',
-                id: input.dataset.clientName,
-                name: input.value
-            })
+document.addEventListener('DOMContentLoaded', function() {
+    
+    // Редактирование клиента
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const row = this.closest('tr');
+            const cells = row.querySelectorAll('td[contenteditable]');
+            
+            cells.forEach(cell => {
+                cell.contentEditable = 'true';
+                cell.classList.add('editing');
+            });
+            
+            this.style.display = 'none';
+            row.querySelector('.save-btn').style.display = 'inline-block';
         });
     });
-});
-
-document.querySelectorAll('[data-delete-client]').forEach(btn => {
-    btn.onclick = () => {
-        if (!confirm('Удалить клиента?')) return;
-
-        fetch('/clients.ajax.php', {
-            method: 'POST',
-            body: new URLSearchParams({
-                action: 'delete',
-                id: btn.dataset.deleteClient
+    
+    // Сохранение изменений
+    document.querySelectorAll('.save-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const id = this.dataset.id;
+            const row = this.closest('tr');
+            const cells = row.querySelectorAll('td[contenteditable]');
+            
+            const formData = new FormData();
+            formData.append('action', 'update_client');
+            formData.append('id', id);
+            
+            cells.forEach(cell => {
+                const field = cell.dataset.field;
+                const value = cell.textContent.trim();
+                formData.append(field, value);
+                
+                cell.contentEditable = 'false';
+                cell.classList.remove('editing');
+            });
+            
+            // Отправка AJAX запроса
+            fetch('', {
+                method: 'POST',
+                body: formData
             })
-        }).then(() => location.reload());
-    };
+            .then(response => {
+                if (response.ok) {
+                    this.style.display = 'none';
+                    row.querySelector('.edit-btn').style.display = 'inline-block';
+                }
+            })
+            .catch(error => {
+                console.error('Ошибка:', error);
+                alert('Ошибка при сохранении');
+            });
+        });
+    });
 });

@@ -101,16 +101,23 @@
 session_start();
 
 // 1. Подключаем базу данных (там создается переменная $pdo)
-require_once 'db/db_connect.php'; 
-require_once 'bc/scanner2.php';
+require_once __DIR__ . '/../db/db_connect.php';
+require_once __DIR__ . '/../bc/scanner2.php';
+date_default_timezone_set('Europe/Riga');
 
 header('Content-Type: application/json');
 
 // Проверка статуса (оставляем как есть, это удобно для фронтенда)
 if (isset($_GET['check_status'])) {
-    $syncFile = '../last_scan_sync.txt';
-    $globalSync = file_exists($syncFile) ? file_get_contents($syncFile) : '';
+    // Берем дату завершения последнего УСПЕШНОГО сканирования из БД
+    $sql = "SELECT scan_finished_at FROM scan_history 
+            WHERE status = 'success' 
+            ORDER BY scan_finished_at DESC LIMIT 1";
+    $globalSync = $pdo->query($sql)->fetchColumn();
     
+    // Если в базе пусто, возвращаем пустую строку
+    $globalSync = $globalSync ?: ''; 
+
     echo json_encode([
         'scanning' => isset($_SESSION['is_scanning']),
         'global_sync' => $globalSync
@@ -140,10 +147,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
         $_SESSION['last_scan_time'] = $currentTime;
 
-        // Обновляем метку синхронизации, если были изменения
-        if ($totalChanges > 0) {
-            file_put_contents('../last_scan_sync.txt', $currentDate);
-        }
+        // УДАЛИЛИ: if ($totalChanges > 0) { file_put_contents(...) } — больше не нужно писать в файл
 
         // 3. Считаем общее кол-во файлов в базе быстрым запросом
         $totalFiles = $pdo->query("SELECT COUNT(*) FROM files")->fetchColumn();
@@ -154,11 +158,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'moved' => $s['moved'],
             'deleted' => $s['deleted']
         ];
-
+        
         echo json_encode([
             'status' => 'success',
             'last_time' => $currentTime,
-            'global_sync' => (file_exists('../last_scan_sync.txt') ? file_get_contents('../last_scan_sync.txt') : $currentDate),
+            // Просто отдаем текущую дату, так как скан только что закончился успешно
+            'global_sync' => $currentDate, 
             'total_stats' => $total_stats,
             'stats' => $s
         ]);

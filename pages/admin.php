@@ -1,5 +1,6 @@
 <?php
-require_once 'bc/scanner2.php';
+// require_once 'bc/scanner2.php';
+require_once __DIR__ . '/../bc/scanner2.php';
 
 // БД
 $message = null;

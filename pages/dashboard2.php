@@ -44,24 +44,24 @@ if ($search !== '') {
 $files = [];
 
 // Подключаем сборщик условий фильтрации
-require_once 'bc/filter_sort.php';
+require_once __DIR__ . '/../bc/filter_sort.php';
 
 // Собираем параметры от GET
 $params = [
     'search' => isset($_GET['search']) ? trim($_GET['search']) : '',
     'status' => isset($_GET['status']) ? trim($_GET['status']) : '',
     'sort' => isset($_GET['sort']) ? trim($_GET['sort']) : '',
-    'size_min' => isset($_GET['size_min']) ? trim($_GET['size_min']) : '',
-    'size_max' => isset($_GET['size_max']) ? trim($_GET['size_max']) : ''
+    // 'size_min' => isset($_GET['size_min']) ? trim($_GET['size_min']) : '',
+    // 'size_max' => isset($_GET['size_max']) ? trim($_GET['size_max']) : ''
 ];
 
 // Преобразуем размеры из MB (пользователь вводит MB) в байты для сравнения в БД
-if ($params['size_min'] !== '') {
-    $params['size_min'] = (int)$params['size_min'] * 1048576;
-}
-if ($params['size_max'] !== '') {
-    $params['size_max'] = (int)$params['size_max'] * 1048576;
-}
+// if ($params['size_min'] !== '') {
+//     $params['size_min'] = (int)$params['size_min'] * 1048576;
+// }
+// if ($params['size_max'] !== '') {
+//     $params['size_max'] = (int)$params['size_max'] * 1048576;
+// }
 
 $filterParts = buildFilters($params);
 
@@ -289,6 +289,7 @@ $files = $stmt->fetchAll();
             </select>
 
 
+
             <button type="submit" class="btn-search">Применить</button>
         </div>
     </form>
@@ -412,6 +413,11 @@ $files = $stmt->fetchAll();
                                         <span class="material-icons-round">info</span>
                                     </button>
 
+                                    <!-- кнопка добавить клиента -->
+                                    <button class="btn-icon" onclick="addClient(this, <?= $file['id'] ?>)" title="Добавить клиента">
+                                        <span class="material-icons-round">people</span>
+                                    </button>
+
 
                                     <!-- кнопка открыть папку с файлом -->
                                     <button class="btn-icon" 
@@ -431,7 +437,7 @@ $files = $stmt->fetchAll();
 </div>
 
     <!-- кнопка загрузить еще если есть еще файлы -->
-
+<!-- 
 <script>
 document.addEventListener('DOMContentLoaded', () => {
     const form = document.getElementById('filtersForm');
@@ -484,7 +490,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-</script>
+</script> -->
 
 
 

@@ -205,7 +205,10 @@ body {
 .toolbar {
     display: flex;
     justify-content: space-between;
+    align-items: center;
+    gap: 35px;
     margin-bottom: 24px;
+    flex-wrap: wrap; /* allow search and filters to stack on small screens */
 }
 
 
@@ -217,7 +220,9 @@ body {
     padding: 10px 16px;
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
-    width: 500px;
+    width: 100%;
+    max-width: 600px; /* keeps a comfortable size on large screens */
+    min-width: 0; /* allow flex children to shrink properly */
     gap: 8px;
 }
 
@@ -228,6 +233,10 @@ body {
     flex: 1;
  }
 
+
+.search-wrap .btn-clear {
+    display: inline-flex;
+}
 
 
 .search-wrap .btn-search,
@@ -271,11 +280,48 @@ body {
 
 
 /* Фильтры */
+.filters {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+    /* allow filters to shrink on small widths */
+    width: auto;
+}
+
 .filters select {
-    padding: 10px; 
+    padding: 10px 14px; 
     border-radius: 12px;
     border: 1px solid var(--border); 
     cursor: pointer;
+    background: white;
+    font-size: 14px;
+    transition: 0.2s;
+}
+
+/* Make primary search button adapt to available space */
+.filters .btn-search {
+    padding: 10px 16px;
+    background: var(--accent);
+    color: white;
+    border-radius: 12px;
+    border: none;
+    cursor: pointer;
+    font-weight: 500;
+    transition: 0.2s;
+    white-space: nowrap;
+}
+
+.filters select:hover {
+    border-color: var(--accent);
+    box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+
+
+.filters .btn-search:hover {
+    background: #5c3ac7; /* чуть темнее акцента */
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
 }
 
 
@@ -939,6 +985,71 @@ body {
 
 
 
+
+/* ==================================================== 
+   КЛИЕНТЫ
+ ==================================================== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 /* ==================================================== 
    ДЛЯ МОБИЛОК (меньше 768px)
  ==================================================== */
@@ -989,11 +1100,6 @@ body {
         box-sizing: border-box;  
     }
     
-    .toolbar {
-        flex-direction: column;    
-        gap: 10px;              
-    }
-
 
     /* убираем лишние колонки из таблицы */
     .hide-mobile {

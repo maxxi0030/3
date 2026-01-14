@@ -809,7 +809,7 @@ function runIncrementalScan($pdo) {
                 files_updated = ?,
                 files_deleted = ?,
                 files_moved = ?,
-                status = 'completed'
+                status = 'success'
             WHERE id = ?
         ");
         $updateScanStmt->execute([

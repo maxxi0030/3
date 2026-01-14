@@ -291,6 +291,26 @@ CREATE INDEX idx_scan_history_scan_path_id ON scan_history(scan_path_id);
 ; =====================================================
 ; =====================================================
 ; =====================================================
+ОБНОВЛЕНО
+
+добавил эту ====
+
+CREATE TABLE clients (
+    id SERIAL PRIMARY KEY,
+    name TEXT NOT NULL,
+    phone VARCHAR(50),
+    email VARCHAR(100),
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+);
+
+
++ добавил колонку клинт айди в филес
+
+ALTER TABLE files
+ADD COLUMN client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL;
+
+
 ; =====================================================
 ; =====================================================
 -- ============================================
