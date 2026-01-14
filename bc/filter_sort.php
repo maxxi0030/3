@@ -24,6 +24,16 @@ function buildFilters(array $params): array {
     //     $bindings[':path_prefix'] = rtrim($params['path_prefix'], '/') . '%';
     // }
 
+    // Фильтр по клиенту (client_id)
+    if (!empty($params['client_id'])) {
+        // приводим к целому — защита от инъекций
+        $clientId = (int)$params['client_id'];
+        if ($clientId > 0) {
+            $where[] = "client_id = :client_id";
+            $bindings[':client_id'] = $clientId;
+        }
+    }
+
     // Сортировки (предусмотренные варианты)
     if (!empty($params['sort'])) {
         switch ($params['sort']) {

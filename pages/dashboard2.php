@@ -22,6 +22,10 @@ $stats['size_gb'] = round(($statData['total_bytes'] ?? 0) / 1073741824, 2);
 
 
 // 2. ПОИСК И ФИЛЬТРАЦИЯ
+// Загружаем список клиентов для фильтра
+$clientsStmt = $pdo->query("SELECT id, name FROM clients ORDER BY name");
+$clientsList = $clientsStmt->fetchAll(PDO::FETCH_ASSOC);
+
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $files = [];
 
@@ -50,6 +54,7 @@ require_once __DIR__ . '/../bc/filter_sort.php';
 $params = [
     'search' => isset($_GET['search']) ? trim($_GET['search']) : '',
     'status' => isset($_GET['status']) ? trim($_GET['status']) : '',
+    'client_id' => isset($_GET['client_id']) ? trim($_GET['client_id']) : '',
     'sort' => isset($_GET['sort']) ? trim($_GET['sort']) : '',
     // 'size_min' => isset($_GET['size_min']) ? trim($_GET['size_min']) : '',
     // 'size_max' => isset($_GET['size_max']) ? trim($_GET['size_max']) : ''
@@ -286,6 +291,14 @@ $files = $stmt->fetchAll();
                 <option value="size_asc" <?= $params['sort'] === 'size_asc' ? 'selected' : '' ?>>Размер ↑</option>
                 <option value="name_asc" <?= $params['sort'] === 'name_asc' ? 'selected' : '' ?>>Имя A→Z</option>
                 <option value="name_desc" <?= $params['sort'] === 'name_desc' ? 'selected' : '' ?>>Имя Z→A</option>
+            </select>
+
+
+            <select name="client_id" aria-label="Клиент">
+                <option value="" <?= $params['client_id'] === '' ? 'selected' : '' ?>>Клиенты</option>
+                <?php foreach ($clientsList as $c): ?>
+                    <option value="<?= (int)$c['id'] ?>" <?= ((string)$params['client_id'] === (string)$c['id']) ? 'selected' : '' ?>><?= htmlspecialchars($c['name']) ?></option>
+                <?php endforeach; ?>
             </select>
 
 

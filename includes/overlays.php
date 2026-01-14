@@ -137,3 +137,31 @@
         </div>
     </div>
 </aside>
+
+
+
+
+
+<!-- Модальное окно привязки клиента к файлу -->
+<aside class="file-info-panel hidden" id="clientAssignModal" style="max-width:420px;">
+    <div class="file-info-header">
+        <h2>Привязать клиента</h2>
+        <button onclick="closeClientAssign()" class="close-panel-btn">
+            <span class="material-icons-round">close</span>
+        </button>
+    </div>
+
+    <div class="file-info-content">
+        <div class="file-detail-section">
+            <div class="file-detail-row">
+                <label class="file-detail-label">Клиент</label>
+                <select id="clientSelect" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); font-size:14px;"></select>
+            </div>
+        </div>
+
+        <div class="file-actions-panel" style="margin-top:12px; display:flex; gap:8px; justify-content:flex-end;">
+            <button id="clientAssignCancel" class="btn-secondary" onclick="closeClientAssign()">Отмена</button>
+            <button id="clientAssignSave" class="btn-primary">Сохранить</button>
+        </div>
+    </div>
+</aside>

@@ -46,9 +46,83 @@ function openInExplorer(filePath) {
 // ФУНКЦИИ ДЛЯ КНОПКИ ДОБАВИТЬ КЛИЕНТА
 // ====================================================================
 
-function addClient() {
+function escapeHtml(str) {
+    return String(str)
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#039;');
+}
 
+function addClient(buttonElement, fileId) {
+    const modal = document.getElementById('clientAssignModal');
+    const select = document.getElementById('clientSelect');
+    const saveBtn = document.getElementById('clientAssignSave');
+    if (!modal || !select || !saveBtn) return;
 
+    modal.dataset.fileId = fileId;
+    select.innerHTML = '<option>Загрузка...</option>';
+    modal.classList.remove('hidden');
+
+    // Load clients
+    fetch('api/ajax_clients.php?action=list')
+        .then(r => r.json())
+        .then(data => {
+            if (data && data.success) {
+                let html = '<option value="">(Не привязывать)</option>';
+                html += data.clients.map(c => `<option value="${c.id}">${escapeHtml(c.name)}</option>`).join('');
+                select.innerHTML = html;
+
+                // try to preselect current file client
+                fetch('api/get_file_info.php?id=' + fileId)
+                    .then(r => r.json())
+                    .then(fi => {
+                        if (fi && fi.client_id) select.value = fi.client_id;
+                    }).catch(() => {});
+            } else {
+                select.innerHTML = '<option value="">Ошибка загрузки</option>';
+            }
+        }).catch(err => {
+            console.error('load clients error', err);
+            select.innerHTML = '<option value="">Ошибка</option>';
+        });
+
+    // attach save handler
+    saveBtn.onclick = function() {
+        const clientId = select.value;
+        const form = new FormData();
+        form.append('action', 'assign');
+        form.append('file_id', fileId);
+        form.append('client_id', clientId);
+
+        saveBtn.disabled = true;
+        fetch('api/ajax_clients.php', { method: 'POST', body: form })
+            .then(r => r.json())
+            .then(resp => {
+                saveBtn.disabled = false;
+                if (resp && resp.success) {
+                    closeClientAssign();
+                    // refresh to show updated relation; can be changed to update row in-place
+                    location.reload();
+                } else {
+                    alert('Ошибка: ' + (resp.message || 'Не удалось сохранить'));
+                }
+            }).catch(err => {
+                saveBtn.disabled = false;
+                console.error(err);
+                alert('Ошибка запроса');
+            });
+    };
+}
+
+function closeClientAssign() {
+    const modal = document.getElementById('clientAssignModal');
+    if (!modal) return;
+    modal.classList.add('hidden');
+    modal.dataset.fileId = '';
+    const saveBtn = document.getElementById('clientAssignSave');
+    if (saveBtn) saveBtn.onclick = null;
 }
 
 
