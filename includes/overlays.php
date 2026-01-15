@@ -13,6 +13,7 @@
 ?>
 
 
+<!-- модальное окно с инфой о файле -->
 <aside class="file-info-panel hidden" id="fileInfoPanel">
     <div class="file-info-header">
         <h2>Информация о файле</h2>
@@ -143,7 +144,7 @@
 
 
 <!-- Модальное окно привязки клиента к файлу -->
-<aside class="file-info-panel hidden" id="clientAssignModal" style="max-width:420px;">
+<aside class="file-info-panel hidden" id="clientAssignModal">
     <div class="file-info-header">
         <h2>Привязать клиента</h2>
         <button onclick="closeClientAssign()" class="close-panel-btn">
@@ -154,7 +155,7 @@
     <div class="file-info-content">
         <div class="file-detail-section">
             <div class="file-detail-row">
-                <label class="file-detail-label">Клиент</label>
+                <!-- <label class="file-detail-label">Клиент</label> -->
                 <select id="clientSelect" style="width:100%; padding:10px 12px; border-radius:8px; border:1px solid var(--border); font-size:14px;"></select>
             </div>
         </div>

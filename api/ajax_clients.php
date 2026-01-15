@@ -5,6 +5,7 @@ require_once __DIR__ . '/../db/db_connect.php';
 
 $action = $_REQUEST['action'] ?? '';
 
+// дропдаун список
 if ($action === 'list') {
     try {
         $stmt = $pdo->query("SELECT id, name FROM clients ORDER BY name");
@@ -16,6 +17,7 @@ if ($action === 'list') {
     exit;
 }
 
+// привязка клинта к файлу
 if ($action === 'assign' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $file_id = isset($_POST['file_id']) ? (int)$_POST['file_id'] : 0;
     $client_id = isset($_POST['client_id']) ? (int)$_POST['client_id'] : 0;

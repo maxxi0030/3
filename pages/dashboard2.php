@@ -29,23 +29,23 @@ $clientsList = $clientsStmt->fetchAll(PDO::FETCH_ASSOC);
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $files = [];
 
-if ($search !== '') {
-    // Поиск по имени файла (регистронезависимый в PostgreSQL через ILIKE)
-    $stmt = $pdo->prepare("
-        SELECT * FROM files 
-        WHERE file_name ILIKE :search 
-        ORDER BY created_at DESC 
-        LIMIT 100
-    ");
-    $stmt->execute(['search' => "%$search%"]);
-    $files = $stmt->fetchAll();
-} else {
-    // Если поиска нет, берем последние 50 файлов
-    $stmt = $pdo->query("SELECT * FROM files ORDER BY created_at DESC LIMIT 50");
-    $files = $stmt->fetchAll();
-}
+// if ($search !== '') {
+//     // Поиск по имени файла (регистронезависимый в PostgreSQL через ILIKE)
+//     $stmt = $pdo->prepare("
+//         SELECT * FROM files 
+//         WHERE file_name ILIKE :search 
+//         ORDER BY created_at DESC 
+//         LIMIT 50
+//     ");
+//     $stmt->execute(['search' => "%$search%"]);
+//     $files = $stmt->fetchAll();
+// } else {
+//     // Если поиска нет, берем последние n файлов
+//     $stmt = $pdo->query("SELECT * FROM files ORDER BY updated_at DESC LIMIT 10");
+//     $files = $stmt->fetchAll();
+// }
 
-$files = [];
+// $files = [];
 
 // Подключаем сборщик условий фильтрации
 require_once __DIR__ . '/../bc/filter_sort.php';
@@ -70,7 +70,7 @@ $params = [
 
 $filterParts = buildFilters($params);
 
-$sql = "SELECT * FROM files " . $filterParts['where'] . " ORDER BY " . $filterParts['order_by'] . " LIMIT 100";
+$sql = "SELECT f.*, c.name as client_name FROM files f LEFT JOIN clients c ON f.client_id = c.id " . $filterParts['where'] . " ORDER BY " . $filterParts['order_by'] . " LIMIT 100";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($filterParts['bindings']);
 $files = $stmt->fetchAll();
@@ -184,26 +184,6 @@ $files = $stmt->fetchAll();
 ?>
 
 
-<!-- 
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Файловое хранилище</title>
-    
-
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet">
-    
-
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    
-
-    <link rel="stylesheet" href="style.css">
-
-
-</head>
-<body> -->
 
 
 <!-- ШАПКА ДЭШБОРДА -->
@@ -211,8 +191,8 @@ $files = $stmt->fetchAll();
     <div>
         <h1>Файловое хранилище</h1>
         <p class="subtitle">
-            Всего: <b><?= $stats['total'] ?></b> | 
-            Объем: <b><?= $stats['size_gb'] ?> GB</b>
+            Всего:<b><?=$stats['total'] ?></b> | 
+            Объем:<b><?=$stats['size_gb'] ?> GB</b>
             <!-- тут можно потом добавить статистику удаленных и перемещенных файлов -->
         </p>
     </div>
@@ -302,8 +282,8 @@ $files = $stmt->fetchAll();
             </select>
 
 
-
-            <button type="submit" class="btn-search">Применить</button>
+            <!-- кнопка не нужна так как у нас автосамбит -->
+            <!-- <button type="submit" class="btn-search">Применить</button> -->
         </div>
     </form>
 
@@ -325,6 +305,7 @@ $files = $stmt->fetchAll();
                     <th>Имя файла</th>
                     <!-- <th width="200">Клиент</th> -->
                     <!-- <th class="hide-mobile">Путь</th> -->
+                    <th width="120">Клиент</th>
                     <th width="100" class="hide-mobile">Размер</th>
                     <th width="120">Статус</th>
                     <th width="150">Дата</th>
@@ -369,7 +350,7 @@ $files = $stmt->fetchAll();
                             ];
                             $statusText = $statusMap[$file['file_status']] ?? $file['file_status'];
 
-                            // 4. КАРТА КЛАССОВ
+                            // 4. КАРТА КЛАССОВ для статусов 
                             $classMap = [
                                 'active'  => 'exists',  // БД 'active' -> CSS '.badge.exists'
                                 'new'     => 'new',     // БД 'new'    -> CSS '.badge.new'
@@ -401,7 +382,8 @@ $files = $stmt->fetchAll();
 
 
                                 
-                            <!-- путь файла -->
+                            <!-- клиент -->
+                            <td class="client_name"><?= !empty($file['client_name']) ? htmlspecialchars($file['client_name']) : '' ?></td>
 
                                 
                             <!-- размер файла -->
@@ -450,68 +432,3 @@ $files = $stmt->fetchAll();
 </div>
 
     <!-- кнопка загрузить еще если есть еще файлы -->
-<!-- 
-<script>
-document.addEventListener('DOMContentLoaded', () => {
-    const form = document.getElementById('filtersForm');
-
-    // автосабмит
-    form.querySelectorAll('[data-autosubmit]').forEach(el => {
-        el.addEventListener('change', () => {
-            cleanAndSubmit(form);
-        });
-    });
-
-    function cleanAndSubmit(form) {
-        [...form.elements].forEach(el => {
-            if (
-                el.name &&
-                (
-                    el.value === '' ||
-                    el.type === 'number' && el.value === null
-                )
-            ) {
-                el.removeAttribute('name');
-            }
-        });
-
-        form.submit();
-    }
-});
-
-// пробуем мгновенное сохранение
-document.addEventListener('DOMContentLoaded', () => {
-
-    document.querySelectorAll('.client-select').forEach(select => {
-        select.addEventListener('change', () => {
-
-            fetch('/ajax/files.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: new URLSearchParams({
-                    action: 'set_client',
-                    file_id: select.dataset.fileId,
-                    client_id: select.value
-                })
-            });
-
-        });
-    });
-
-});
-
-
-</script> -->
-
-
-
-
-<!-- 
-
-</body>
-</html> -->
-
-<!-- автосамбит для фильтров -->
- <!-- УРЛ красивые и понятные у фильтров -->

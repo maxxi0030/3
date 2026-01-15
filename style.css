@@ -221,8 +221,9 @@ body {
     border-radius: 12px;
     box-shadow: 0 2px 4px rgba(0,0,0,0.02);
     width: 100%;
-    max-width: 600px; /* keeps a comfortable size on large screens */
-    min-width: 0; /* allow flex children to shrink properly */
+    width: 400px;
+    /* max-width: 600px; */
+    min-width: 0px;
     gap: 8px;
 }
 
@@ -968,6 +969,7 @@ body {
 
 
 
+
 /* .badge.new { background: #E1F5FE; color: #0288D1; } 
 .badge.moved { background: #FFF3E0; color: #F57C00; } 
 .badge.deleted { background: #FFEBEE; color: #D32F2F; } 
@@ -989,6 +991,266 @@ body {
 /* ==================================================== 
    КЛИЕНТЫ
  ==================================================== */
+
+
+/* === Основные стили === */
+.top-bar {
+    padding: 2rem 0;
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.top-bar-left h1 {
+    font-size: 1.875rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin: 0 0 0.25rem 0;
+}
+
+.subtitle {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+}
+
+.subtitle b {
+    color: var(--accent);
+    font-weight: 600;
+}
+
+/* === Карточка === */
+.card {
+    background: var(--bg-card);
+    border-radius: 12px;
+    box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+    overflow: hidden;
+}
+
+/* === Кнопка добавления клиента === */
+.add-client-trigger {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.25rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.875rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    white-space: nowrap;
+}
+
+.add-client-trigger:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.add-client-trigger:active {
+    transform: translateY(0);
+}
+
+.add-client-trigger .material-icons-round {
+    font-size: 1.25rem;
+    transition: transform 0.3s ease;
+}
+
+.add-client-trigger.active .material-icons-round {
+    transform: rotate(45deg);
+}
+
+/* === Форма добавления === */
+.client-add-form {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    background: linear-gradient(to bottom, #F9FAFB 0%, white 100%);
+    border-bottom: 1px solid var(--border);
+}
+
+.client-add-form.open {
+    max-height: 400px;
+}
+
+.client-add-form-inner {
+    padding: 2rem;
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+}
+
+.client-add-form input {
+    padding: 0.875rem 1rem;
+    border: 2px solid var(--border);
+    border-radius: 8px;
+    font-size: 0.875rem;
+    transition: all 0.2s ease;
+    outline: none;
+}
+
+.client-add-form input:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+}
+
+.client-add-form input::placeholder {
+    color: #9CA3AF;
+}
+
+.client-add-form button[type="submit"] {
+    padding: 0.875rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    font-size: 0.875rem;
+}
+
+.client-add-form button[type="submit"]:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
+
+.client-add-form button[type="submit"]:active {
+    transform: translateY(0);
+}
+
+/* === Таблица === */
+.clients-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.clients-table thead {
+    background: #F9FAFB;
+    border-bottom: 2px solid var(--border);
+}
+
+.clients-table th {
+    padding: 1rem 1.5rem;
+    text-align: left;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-secondary);
+}
+
+.clients-table tbody tr {
+    border-bottom: 1px solid var(--border);
+    transition: background 0.2s ease;
+}
+
+.clients-table tbody tr:hover {
+    background: #F9FAFB;
+}
+
+.clients-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.clients-table td {
+    padding: 1.25rem 1.5rem;
+    color: var(--text-primary);
+    font-size: 0.875rem;
+}
+
+.clients-table td[contenteditable="true"] {
+    background: #FEF3C7;
+    border-radius: 4px;
+    outline: 2px solid #F59E0B;
+    outline-offset: -2px;
+}
+
+/* === Кнопки действий === */
+.btn-icon {
+    background: transparent;
+    border: none;
+    padding: 0.5rem;
+    cursor: pointer;
+    border-radius: 6px;
+    transition: all 0.2s ease;
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+
+
+.btn-icon[type="submit"]:hover {
+    background: #FEE2E2;
+    color: var(--danger);
+}
+
+/* === Пустое состояние === */
+.empty-state {
+    text-align: center;
+    padding: 4rem 2rem;
+}
+
+.empty-state-icon {
+    width: 80px;
+    height: 80px;
+    margin: 0 auto 1.5rem;
+    background: linear-gradient(135deg, #EEF2FF 0%, #E0E7FF 100%);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.empty-state-icon .material-icons-round {
+    font-size: 2.5rem;
+    color: var(--accent);
+}
+
+.empty-state h3 {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin: 0 0 0.5rem 0;
+}
+
+.empty-state p {
+    color: var(--text-secondary);
+    font-size: 0.875rem;
+    margin: 0 0 1.5rem 0;
+}
+
+.empty-state button {
+    padding: 0.75rem 1.5rem;
+    background: var(--accent);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.empty-state button:hover {
+    background: var(--accent-hover);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+}
 
 
 
@@ -1057,9 +1319,9 @@ body {
 @media screen and (max-width: 768px) {
     
     /* Скрываем сайдбар на мобильном по умолчанию или меняем его поведение */
-    .sidebar {
-        display: none; /* Или можно сделать его узким иконками */
-    }
+    /* .sidebar {
+        display: none;
+    } */
     
     /* Убираем жесткую ширину у поиска */
     .search-wrap {

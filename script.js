@@ -46,6 +46,89 @@ function openInExplorer(filePath) {
 // ФУНКЦИИ ДЛЯ КНОПКИ ДОБАВИТЬ КЛИЕНТА
 // ====================================================================
 
+
+document.addEventListener('DOMContentLoaded', function() {
+    const addButton = document.querySelector('.add-client-trigger');
+    const addForm = document.querySelector('.client-add-form');
+    
+    if (addButton && addForm) {
+        addButton.addEventListener('click', function() {
+            addForm.classList.toggle('open');
+            addButton.classList.toggle('active');
+        });
+    }
+    
+    // Редактирование клиентов
+    document.querySelectorAll('.edit-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const row = this.closest('tr');
+            const clientId = this.dataset.id;
+            const editableCells = row.querySelectorAll('[contenteditable]');
+            const saveBtn = row.querySelector('.save-btn');
+            
+            editableCells.forEach(cell => {
+                cell.setAttribute('contenteditable', 'true');
+                cell.focus();
+            });
+            
+            this.style.display = 'none';
+            saveBtn.style.display = 'inline-flex';
+        });
+    });
+    
+    // Сохранение изменений
+    document.querySelectorAll('.save-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const row = this.closest('tr');
+            const clientId = this.dataset.id;
+            const editBtn = row.querySelector('.edit-btn');
+            
+            const data = {
+                action: 'update_client',
+                id: clientId,
+                name: row.querySelector('[data-field="name"]').textContent,
+                phone: row.querySelector('[data-field="phone"]').textContent,
+                email: row.querySelector('[data-field="email"]').textContent
+            };
+            
+            // Отправка данных через AJAX
+            const formData = new FormData();
+            Object.keys(data).forEach(key => formData.append(key, data[key]));
+            
+            fetch(window.location.href, {
+                method: 'POST',
+                body: formData
+            }).then(() => {
+                row.querySelectorAll('[contenteditable]').forEach(cell => {
+                    cell.setAttribute('contenteditable', 'false');
+                });
+                
+                this.style.display = 'none';
+                editBtn.style.display = 'inline-flex';
+            });
+        });
+    });
+});
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 function escapeHtml(str) {
     return String(str)
         .replace(/&/g, '&amp;')
@@ -56,13 +139,23 @@ function escapeHtml(str) {
 }
 
 function addClient(buttonElement, fileId) {
+
+    document.querySelectorAll('.file-table tr').forEach(row => {
+        row.classList.remove('active-row');
+    });
+
+    const row = buttonElement.closest('tr'); 
+    if (row) {
+        row.classList.add('active-row');
+    }
+
     const modal = document.getElementById('clientAssignModal');
     const select = document.getElementById('clientSelect');
     const saveBtn = document.getElementById('clientAssignSave');
     if (!modal || !select || !saveBtn) return;
 
     modal.dataset.fileId = fileId;
-    select.innerHTML = '<option>Загрузка...</option>';
+    // select.innerHTML = '<option>Загрузка...</option>';
     modal.classList.remove('hidden');
 
     // Load clients
@@ -117,6 +210,10 @@ function addClient(buttonElement, fileId) {
 }
 
 function closeClientAssign() {
+    document.querySelectorAll('.file-table tr').forEach(row => {
+        row.classList.remove('active-row');
+    });
+
     const modal = document.getElementById('clientAssignModal');
     if (!modal) return;
     modal.classList.add('hidden');
@@ -412,7 +509,7 @@ window.addEventListener('load', function() {
 
 
 
-
+// СВЕТОФОР
 
 // Переменная, которая хранит время последнего скана, известное ЭТОЙ странице
 // При загрузке страницы берем его из PHP
@@ -598,8 +695,25 @@ function loadVideoMetadata(fileId) {
 
 
 
+// ====================================================================
+// ФУНКЦИИ ДЛЯ АВТОСАМБИТА ФИЛЬТРОВ НА ДЭШЕ
+// ====================================================================
 
-
+document.addEventListener('DOMContentLoaded', () => {
+    const filtersForm = document.querySelector('.filters-form');
+    
+    if (filtersForm) {
+        // пполучаем все селекты в форме фильтров
+        const selects = filtersForm.querySelectorAll('select');
+        
+        // добавляем слушатель на каждый селект
+        selects.forEach(select => {
+            select.addEventListener('change', () => {
+                filtersForm.submit();
+            });
+        });
+    }
+});
 
 
 
