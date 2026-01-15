@@ -333,6 +333,7 @@ body {
 
 
 
+
 /* ТАБЛИЦА ДЭШБОРДА*/
 .table-card {
     background: white;
@@ -349,10 +350,9 @@ body {
 
 .file-table { 
     width: 100%; 
-    /* border-collapse: collapse; */
-    min-width: 600px; /* Чтобы таблица не сжималась слишком сильно */
-    table-layout: fixed; /* Фиксированная разметка для стабильности */
+    /* border-collapse: collapse;  */
     border-spacing: 0;
+    min-width: 600px; /* Чтобы таблица не сжималась слишком сильно */
 }
 
 
@@ -365,7 +365,6 @@ body {
     border-bottom: 1px solid var(--border);
     background: #F9FAFB; /* Легкий фон для шапки таблицы */
     text-transform: uppercase;
-    line-height: 1.5;
 }
 
 
@@ -374,16 +373,12 @@ body {
     border-bottom: 1px solid var(--border); 
     font-size: 14px; 
     vertical-align: middle;
-    word-wrap: break-word;
-    overflow-wrap: break-word;
-    word-break: break-word;
-    line-height: 1.5;
 }
 
 
 .file-table tr:hover { 
     background: #F9FAFB;
-}
+ }
 
 /* убираем линию у последнего элемента */
 .file-table tr:last-child td {
@@ -434,9 +429,6 @@ body {
     background: #EEF2FF;
     padding: 8px;
     border-radius: 8px;
-    flex-shrink: 0;
-    align-items: center;
-    justify-content: center;
 }
 
 /* Путь к файлу */
@@ -795,7 +787,7 @@ body {
     font-weight: 500;
     text-align: right;
     max-width: 200px;
-    word-break: break-word;
+    /* word-break: break-word; */
 }
 
 .file-preview {
