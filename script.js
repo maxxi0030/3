@@ -800,3 +800,172 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 });
+
+
+
+
+// ====================================================================
+// ФУНКЦИИ ДЛЯ ПАГИНАЦИИ "ЗАГРУЗИТЬ ЕЩЕ"
+// ====================================================================
+
+// Переменная для отслеживания текущей страницы пагинации
+let currentLoadMorePage = 1;
+
+
+
+
+// Функция для загрузки дополнительных файлов через AJAX
+function loadMoreFiles() {
+    const btn = document.getElementById('loadMoreBtn');
+    
+    // Защита: если кнопка уже загружает, не отправляем повторный запрос
+    if (btn.disabled) {
+        return;
+    }
+    
+    // Блокируем кнопку и меняем текст
+    btn.disabled = true;
+    btn.classList.add('loading');
+    btn.querySelector('.btn-text').textContent = 'Загрузка...';
+    
+    // Собираем параметры фильтрации из текущих GET параметров
+    const params = new URLSearchParams(window.location.search);
+    params.set('page', currentLoadMorePage + 1); // Увеличиваем номер страницы
+    
+    // Отправляем запрос на сервер
+    fetch('api/load_more_files.php?' + params.toString())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Ошибка сервера: ' + response.status);
+            }
+            return response.json();
+        })
+        .then(data => {
+            if (data.status !== 'success') {
+                throw new Error(data.message || 'Неизвестная ошибка');
+            }
+            
+            renderLoadedFiles(data.data);
+            
+            // Увеличиваем счетчик страницы
+            currentLoadMorePage = data.page;
+            
+            // Проверяем, есть ли еще записи
+            if (!data.hasMore) {
+                // Скрываем кнопку и показываем сообщение
+                btn.textContent = 'Данных больше нет';
+                btn.disabled = true;
+                btn.classList.remove('loading');
+                btn.style.visibility = 'hidden';
+            } else {
+                // Кнопка остается активной для следующей загрузки
+                btn.disabled = false;
+                btn.classList.remove('loading');
+                btn.querySelector('.btn-text').textContent = 'Загрузить еще';
+            }
+        })
+        .catch(error => {
+            console.error('Ошибка при загрузке файлов:', error);
+            btn.disabled = false;
+            btn.classList.remove('loading');
+            btn.querySelector('.btn-text').textContent = 'Загрузить еще';
+            alert('Ошибка при загрузке: ' + error.message);
+        });
+}
+
+
+
+
+// Функция для рендеринга загруженных файлов в таблицу
+// Функция для рендеринга загруженных файлов в таблицу
+function renderLoadedFiles(files) {
+    const tbody = document.querySelector('.file-table tbody');
+    
+    if (!tbody) {
+        console.error('Таблица не найдена');
+        return;
+    }
+    
+    // Если это первая загрузка и была пустая таблица, очищаем её
+    if (currentLoadMorePage === 1) {
+        const emptyRow = tbody.querySelector('tr td[colspan]');
+        if (emptyRow) {
+            emptyRow.closest('tr').remove();
+        }
+    }
+    
+    // Карта статусов (как в PHP)
+    const statusMap = {
+        'new': 'Новый',
+        'active': 'Ок',
+        'deleted': 'Удален',
+        'moved': 'Перемещен',
+        'updated': 'Обновлен',
+        'source_off': 'Источник отключен'
+    };
+    
+    const classMap = {
+        'active': 'exists',   // PHP использует 'exists' для active
+        'new': 'new',
+        'deleted': 'deleted',
+        'moved': 'moved',
+        'updated': 'updated',
+        'source_off': 'source_off'
+    };
+    
+    files.forEach(file => {
+        const tr = document.createElement('tr');
+        if (file.status === 'deleted') {
+            tr.classList.add('row-deleted');
+        }
+        
+        const statusText = statusMap[file.status] || file.status;
+        const statusClass = classMap[file.status] || 'source_off';
+        
+        // Генерируем HTML точно как в PHP
+        tr.innerHTML = `
+            <td class="cell-name">
+                <div class="file-icon">
+                    <span class="material-icons-round">description</span>
+                </div>
+                ${escapeHtml(file.name)}
+            </td>
+            <td class="client_name">${file.client_name ? escapeHtml(file.client_name) : ''}</td>
+            <td class="cell-size hide-mobile">${file.size}</td>
+            <td>
+                <span class="badge ${statusClass}">${statusText}</span>
+            </td>
+            <td class="cell-date hide-mobile">${file.date}</td>
+            <td>
+                <div class="action-group">
+                    <button class="btn-icon" onclick="loadFileAndShowInfo(this, ${file.id})" title="Информация">
+                        <span class="material-icons-round">info</span>
+                    </button>
+                    <button class="btn-icon" onclick="addClient(this, ${file.id})" title="Добавить клиента">
+                        <span class="material-icons-round">people</span>
+                    </button>
+                    <button class="btn-icon" title="Открыть папку" onclick="openInExplorer('${escapeHtml(file.path).replace(/'/g, "\\'")}')">
+                        <span class="material-icons-round">folder</span>
+                    </button>
+                </div>
+            </td>
+        `;
+        
+        tbody.appendChild(tr);
+    });
+}
+
+// Вспомогательная функция для экранирования HTML
+function escapeHtml(text) {
+    if (!text) return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
+// Инициализация пагинации при загрузке страницы
+document.addEventListener('DOMContentLoaded', () => {
+    const loadMoreBtn = document.getElementById('loadMoreBtn');
+    if (loadMoreBtn) {
+        loadMoreBtn.addEventListener('click', loadMoreFiles);
+    }
+});

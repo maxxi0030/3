@@ -349,8 +349,10 @@ body {
 
 .file-table { 
     width: 100%; 
-    border-collapse: collapse; 
+    /* border-collapse: collapse; */
     min-width: 600px; /* Чтобы таблица не сжималась слишком сильно */
+    table-layout: fixed; /* Фиксированная разметка для стабильности */
+    border-spacing: 0;
 }
 
 
@@ -363,6 +365,7 @@ body {
     border-bottom: 1px solid var(--border);
     background: #F9FAFB; /* Легкий фон для шапки таблицы */
     text-transform: uppercase;
+    line-height: 1.5;
 }
 
 
@@ -371,12 +374,16 @@ body {
     border-bottom: 1px solid var(--border); 
     font-size: 14px; 
     vertical-align: middle;
+    word-wrap: break-word;
+    overflow-wrap: break-word;
+    word-break: break-word;
+    line-height: 1.5;
 }
 
 
 .file-table tr:hover { 
     background: #F9FAFB;
- }
+}
 
 /* убираем линию у последнего элемента */
 .file-table tr:last-child td {
@@ -427,6 +434,9 @@ body {
     background: #EEF2FF;
     padding: 8px;
     border-radius: 8px;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
 }
 
 /* Путь к файлу */
@@ -1011,13 +1021,13 @@ body {
     margin: 0 0 0.25rem 0;
 }
 
-.subtitle {
+/* .subtitle {
     display: flex;
     align-items: center;
     gap: 1rem;
     color: var(--text-secondary);
     font-size: 0.875rem;
-}
+} */
 
 .subtitle b {
     color: var(--accent);
@@ -1368,6 +1378,60 @@ body {
         display: none;
     }
 
+}
+
+
+
+
+/* ==================================================== 
+    ПАГИНАЦИЯ - ЗАГРУЗИТЬ ЕЩЕ
+ ==================================================== */
+
+.load-more-container {
+    display: flex;
+    justify-content: center;
+    padding: 24px 0;
+    gap: 8px;
+}
+
+#loadMoreBtn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 24px;
+    background: var(--bg-card);
+    color: var(--text-primary);
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+#loadMoreBtn:hover:not(:disabled) {
+    background: #F3F4F6;
+    border-color: #D1D5DB;
+    transform: translateY(-1px);
+}
+
+#loadMoreBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+#loadMoreBtn.loading {
+    background: var(--accent);
+    color: white;
+    border-color: var(--accent);
+}
+
+#loadMoreBtn.loading .material-icons-round {
+    animation: spin 1s linear infinite;
+}
+
+.btn-text {
+    display: inline-block;
 }
 
 

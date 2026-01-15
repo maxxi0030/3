@@ -70,10 +70,17 @@ $params = [
 
 $filterParts = buildFilters($params);
 
-$sql = "SELECT f.*, c.name as client_name FROM files f LEFT JOIN clients c ON f.client_id = c.id " . $filterParts['where'] . " ORDER BY " . $filterParts['order_by'] . " LIMIT 100";
+// Изменяем LIMIT с 100 на 5 для первой страницы + 1 дополнительная для проверки hasMore
+$sql = "SELECT f.*, c.name as client_name FROM files f LEFT JOIN clients c ON f.client_id = c.id " . $filterParts['where'] . " ORDER BY " . $filterParts['order_by'] . " LIMIT 21";
 $stmt = $pdo->prepare($sql);
 $stmt->execute($filterParts['bindings']);
-$files = $stmt->fetchAll();
+$filesAll = $stmt->fetchAll();
+
+// Проверяем, есть ли еще файлы
+$hasMore = count($filesAll) > 20;
+// Берем только первые 5 файлов для показа
+$files = array_slice($filesAll, 0, 20);
+
 
 
 
@@ -191,8 +198,8 @@ $files = $stmt->fetchAll();
     <div>
         <h1>Файловое хранилище</h1>
         <p class="subtitle">
-            Всего:<b><?=$stats['total'] ?></b> | 
-            Объем:<b><?=$stats['size_gb'] ?> GB</b>
+            Всего: <b><?=$stats['total'] ?></b> | 
+            Объем: <b><?=$stats['size_gb'] ?> GB</b>
             <!-- тут можно потом добавить статистику удаленных и перемещенных файлов -->
         </p>
     </div>
@@ -303,12 +310,11 @@ $files = $stmt->fetchAll();
             <thead>
                 <tr>
                     <th>Имя файла</th>
-                    <!-- <th width="200">Клиент</th> -->
                     <!-- <th class="hide-mobile">Путь</th> -->
                     <th width="120">Клиент</th>
                     <th width="100" class="hide-mobile">Размер</th>
                     <th width="120">Статус</th>
-                    <th width="150">Дата</th>
+                    <th width="150" class="hide-mobile">Дата</th>
                     <th width="100">Действия</th>
                 </tr>
             </thead>
@@ -320,7 +326,7 @@ $files = $stmt->fetchAll();
                 <!-- проверяем есть ли ваще Файлы -->
                 <?php if (empty($files)): ?>
                         <tr>
-                            <td colspan="5" class="empty-state">
+                            <td colspan="6" class="empty-state">
                                 <span class="material-icons-round">folder_off</span>
                                 <p>Файлы не найдены</p>
                             </td>
@@ -398,7 +404,7 @@ $files = $stmt->fetchAll();
                             </td>
                             
                             <!-- Дата добавления -->
-                            <td class="cell-date"><?= $formattedDate ?></td>
+                            <td class="cell-date hide-mobile"><?= $formattedDate ?></td>
                             
                             <!-- Действия -->
                             <td>
@@ -431,4 +437,12 @@ $files = $stmt->fetchAll();
     </div>
 </div>
 
-    <!-- кнопка загрузить еще если есть еще файлы -->
+<!-- Кнопка "Загрузить еще" -->
+<?php if ($hasMore && !empty($files)): ?>
+    <div class="load-more-container">
+        <button id="loadMoreBtn" class="btn-secondary" style="width: 100%; justify-content: center;">
+            <span class="material-icons-round">expand_more</span>
+            <span class="btn-text">Загрузить еще</span>
+        </button>
+    </div>
+<?php endif; ?>
