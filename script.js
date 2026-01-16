@@ -226,6 +226,159 @@ function closeClientAssign() {
 
 
 
+
+
+
+
+
+
+
+// ====================================================================
+// ФУНКЦИИ ДЛЯ МЕТАДАННЫХ ВИДЕО 
+// ====================================================================
+
+// список расширений для видео
+const VIDEO_EXTENSIONS = [
+    '.mp4', '.avi', '.mkv', '.mov', '.webm', '.flv', '.wmv', '.m4v', 
+    '.mpeg', '.mpg', '.3gp', '.ogv', '.m2ts', '.mts', '.vob', '.divx',
+    '.xvid', '.rm', '.rmvb', '.asf', '.qt', '.ts'
+];
+
+
+// проверка, является ли файл видео по расширению
+function isVideoFile(filename) {
+    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
+    return VIDEO_EXTENSIONS.includes(ext);
+}
+
+
+// первод в удобный формат времени из секунд
+function formatDuration(seconds) {
+    if (!seconds) return '—';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    return `${minutes}:${String(secs).padStart(2, '0')}`;
+}
+
+
+// битрейт показывает нормално
+function formatBitrate(bitrate) {
+    if (!bitrate) return '—';
+    const kbps = Math.round(bitrate / 1000);
+    if (kbps > 1000) {
+        return `${(kbps / 1000).toFixed(2)} Mbps`;
+    }
+    return `${kbps} kbps`;
+}
+
+
+// аудио каналы
+function formatAudioChannels(channels) {
+    if (!channels) return '—';
+    const channelMap = {
+        1: 'Моно (1)',
+        2: 'Стерео (2)',
+        6: '5.1 (6)',
+        8: '7.1 (8)'
+    };
+    return channelMap[channels] || `${channels} каналов`;
+}
+
+function formatBytes(bytes, decimals = 2) {
+    if (!bytes || bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
+
+// Загрузка метаданных видео
+function loadVideoMetadata(fileId) {
+    const section = document.getElementById('videoMetadataSection');
+    const loadingEl = document.getElementById('videoMetadataLoading');
+    const errorEl = document.getElementById('videoMetadataError');
+    const contentEl = document.getElementById('videoMetadataContent');
+
+
+    // Сбрасываем превью перед загрузкой
+    document.getElementById('infoThumbnail').style.display = 'none';
+    document.getElementById('infoIcon').style.display = 'block';
+    
+    // Показываем секцию и состояние загрузки
+    section.style.display = 'block';
+    loadingEl.style.display = 'flex';
+    errorEl.style.display = 'none';
+    contentEl.style.display = 'none';
+    
+    // AJAX запрос к PHP
+    fetch(`api/get_video_metadata.php?file_id=${fileId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const m = data.metadata;
+
+
+                if (data.metadata.thumbnail) {
+                    document.getElementById('infoThumbnail').src = data.metadata.thumbnail;
+                    document.getElementById('infoThumbnail').style.display = 'block';
+                    document.getElementById('infoIcon').style.display = 'none';
+                }
+                
+                // Заполняем все поля
+                document.getElementById('videoDuration').textContent = formatDuration(m.duration);
+                document.getElementById('videoResolution').textContent = m.resolution || (m.width && m.height ? `${m.width}×${m.height}` : '—');
+                document.getElementById('videoAspectRatio').textContent = m.aspect_ratio || '—';
+                document.getElementById('videoFps').textContent = m.fps ? `${m.fps} fps` : '—';
+                document.getElementById('videoBitrate').textContent = formatBitrate(m.bitrate);
+                document.getElementById('videoCodecVideo').textContent = m.codec_video || '—';
+                document.getElementById('videoCodecAudio').textContent = m.codec_audio || '—';
+                document.getElementById('videoAudioChannels').textContent = formatAudioChannels(m.audio_channels);
+                document.getElementById('videoLanguage').textContent = m.language || '—';
+                // document.getElementById('thumbnail').textContent = m.thumbnail || '—';
+                document.getElementById('videoSubtitles').textContent = m.subtitles ? 'Да' : 'Нет';
+                
+                // Показываем контент, скрываем загрузку
+                loadingEl.style.display = 'none';
+                contentEl.style.display = 'block';
+            } else {
+                throw new Error(data.error || 'Unknown error');
+            }
+        })
+        .catch(error => {
+            console.error('Error loading video metadata:', error);
+            loadingEl.style.display = 'none';
+            errorEl.style.display = 'flex';
+        });
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 // ====================================================================
 // ФУНКЦИИ ДЛЯ ПАНЕЛИ С ИНФО О ФАЙЛЕ
 // ====================================================================
@@ -241,6 +394,19 @@ function showFileInfo(buttonElement, file) {
     const row = buttonElement.closest('tr'); 
     if (row) {
         row.classList.add('active-row');
+    }
+
+    // Проверяем тип файла
+    const filename = file.name; // <- используем file (параметр функции)
+        
+    if (isVideoFile(filename)) {
+        // Это видео - показываем превью, вызываем loadVideoMetadata
+        loadVideoMetadata(file.id); // <- используем file.id
+    } else {
+        // Это не видео - скрываем превью и thumbnail
+        document.getElementById('infoThumbnail').style.display = 'none';
+        document.getElementById('infoIcon').style.display = 'block';
+        document.getElementById('videoMetadataSection').style.display = 'none';
     }
 
     // заполняем панель данными
@@ -284,15 +450,15 @@ function showFileInfo(buttonElement, file) {
 
     panel.classList.remove('hidden');
 
-    // проверка видео ли это 
-    if (isVideoFile(file.name)) {
-        loadVideoMetadata(file.id);
-    } else {
-        // Скрываем секцию метаданных для не-видео файлов
-        document.getElementById('videoMetadataSection').style.display = 'none';
-    }
+    // проверка видео ли это - выше уже есть
+    // if (isVideoFile(file.name)) {
+    //     loadVideoMetadata(file.id);
+    // } else {
+    //     // Скрываем секцию метаданных для не-видео файлов
+    //     document.getElementById('videoMetadataSection').style.display = 'none';
+    // }
 
-    panel.classList.remove('hidden');
+    // panel.classList.remove('hidden');
 }
 
 
@@ -467,7 +633,7 @@ function startScan(btn) {
             }
 
             // 3. Обновляем время на всех кнопках
-            document.querySelectorAll('#lastTime').forEach(t => t.textContent = data.last_time);
+            document.querySelectorAll('#lastTime').forEach(t => t.textContent = data.last_scan_time);
         } else {
             alert("Ошибка: " + data.message);
         }
@@ -483,6 +649,11 @@ window.addEventListener('load', function() {
     fetch('api/ajax_scan.php?check_status=1')
     .then(r => r.json())
     .then(data => {
+        // Обновляем время под кнопкой при загрузке страницы
+        if (data.last_scan_time) {
+            document.querySelectorAll('#lastTime').forEach(t => t.textContent = data.last_scan_time);
+        }
+        
         if (data.scanning) {
             setScanState(true);
             // Запускаем опрос статуса, чтобы кнопка разблокировалась сама, когда скан кончится
@@ -575,121 +746,6 @@ window.addEventListener('load', function() {
 
 
 
-
-
-
-
-
-// ====================================================================
-// ФУНКЦИИ ДЛЯ МЕТАДАННЫХ ВИДЕО 
-// ====================================================================
-
-// список расширений для видео
-const VIDEO_EXTENSIONS = [
-    '.mp4', '.avi', '.mkv', '.mov', '.webm', '.flv', '.wmv', '.m4v', 
-    '.mpeg', '.mpg', '.3gp', '.ogv', '.m2ts', '.mts', '.vob', '.divx',
-    '.xvid', '.rm', '.rmvb', '.asf', '.qt', '.ts'
-];
-
-
-// проверка, является ли файл видео по расширению
-function isVideoFile(filename) {
-    const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
-    return VIDEO_EXTENSIONS.includes(ext);
-}
-
-
-// первод в удобный формат времени из секунд
-function formatDuration(seconds) {
-    if (!seconds) return '—';
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-        return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-    return `${minutes}:${String(secs).padStart(2, '0')}`;
-}
-
-
-// битрейт показывает нормално
-function formatBitrate(bitrate) {
-    if (!bitrate) return '—';
-    const kbps = Math.round(bitrate / 1000);
-    if (kbps > 1000) {
-        return `${(kbps / 1000).toFixed(2)} Mbps`;
-    }
-    return `${kbps} kbps`;
-}
-
-
-// аудио каналы
-function formatAudioChannels(channels) {
-    if (!channels) return '—';
-    const channelMap = {
-        1: 'Моно',
-        2: 'Стерео',
-        6: '5.1',
-        8: '7.1'
-    };
-    return channelMap[channels] || `${channels} каналов`;
-}
-
-function formatBytes(bytes, decimals = 2) {
-    if (!bytes || bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
-
-// Загрузка метаданных видео
-function loadVideoMetadata(fileId) {
-    const section = document.getElementById('videoMetadataSection');
-    const loadingEl = document.getElementById('videoMetadataLoading');
-    const errorEl = document.getElementById('videoMetadataError');
-    const contentEl = document.getElementById('videoMetadataContent');
-    
-    // Показываем секцию и состояние загрузки
-    section.style.display = 'block';
-    loadingEl.style.display = 'flex';
-    errorEl.style.display = 'none';
-    contentEl.style.display = 'none';
-    
-    // AJAX запрос к PHP
-    fetch(`api/get_video_metadata.php?file_id=${fileId}`)
-        .then(response => response.json())
-        .then(data => {
-            if (data.success) {
-                const m = data.metadata;
-                
-                // Заполняем все поля
-                document.getElementById('videoDuration').textContent = formatDuration(m.duration);
-                document.getElementById('videoResolution').textContent = m.resolution || (m.width && m.height ? `${m.width}×${m.height}` : '—');
-                document.getElementById('videoAspectRatio').textContent = m.aspect_ratio || '—';
-                document.getElementById('videoFps').textContent = m.fps ? `${m.fps} fps` : '—';
-                document.getElementById('videoBitrate').textContent = formatBitrate(m.bitrate);
-                document.getElementById('videoCodecVideo').textContent = m.codec_video || '—';
-                document.getElementById('videoCodecAudio').textContent = m.codec_audio || '—';
-                document.getElementById('videoAudioChannels').textContent = formatAudioChannels(m.audio_channels);
-                document.getElementById('videoLanguage').textContent = m.language || '—';
-                document.getElementById('videoSubtitles').textContent = m.subtitles ? 'Да' : 'Нет';
-                
-                // Показываем контент, скрываем загрузку
-                loadingEl.style.display = 'none';
-                contentEl.style.display = 'block';
-            } else {
-                throw new Error(data.error || 'Unknown error');
-            }
-        })
-        .catch(error => {
-            console.error('Error loading video metadata:', error);
-            loadingEl.style.display = 'none';
-            errorEl.style.display = 'flex';
-        });
-}
 
 
 

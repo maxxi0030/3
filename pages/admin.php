@@ -28,9 +28,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
                 // Попытаемся восстановить связь для файлов, которые раньше были от этого источника
                 // и при удалении получили статус 'source_off'.
                 $updateFiles = $pdo->prepare(
-                    "UPDATE files SET scan_path_id = ?, file_status = 'active', updated_at = CURRENT_TIMESTAMP WHERE file_path LIKE ? AND file_status = 'source_off'"
+                    "UPDATE files SET scan_path_id = ?, 
+                    -- file_status = 'active', 
+                    -- temp_found = true,
+                    updated_at = CURRENT_TIMESTAMP WHERE file_path LIKE ? AND file_status = 'source_off'"
                 );
-                $like = $new_path . '%';
+                // $like = $new_path . '%';
+                // $updateFiles->execute([$newScanPathId, $like]);
+                $normalizedPath = rtrim($new_path, '/') . '/';
+                $like = $normalizedPath . '%';
                 $updateFiles->execute([$newScanPathId, $like]);
 
                 $affected = $updateFiles->rowCount();
@@ -201,7 +207,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         
         <form method="POST" class="add-path-box">
             <input type="hidden" name="action" value="add_new_path">
-            <input type="text" name="path" placeholder="Вставьте путь, например: D:/Movies/Cartoons" required>
+            <input type="text" name="path" placeholder="Вставьте путь..." required>
             <button type="submit" class="btn-primary">Добавить</button>
         </form>
 
@@ -242,25 +248,9 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
             </button>
             
             <div class="scan-footer">
-                Последний скан: <span id="lastTime"><?= $_SESSION['last_scan_time'] ?? '--:--' ?></span>
+                Последний скан: <span id="lastTime"></span>
             </div>
         </div>
 
-        <div class="stats">
-            <!-- <div class="stats-item">
-                <span>Всего файлов:</span>
-                <span class="stats-val" id="stat-total"><?= $stats['total'] ?></span>
-            </div>
-            <div class="stats-item">
-                <span>Общий объем:</span>
-                <span class="stats-val" id="stat-size"><b><?= $stats['size_gb'] ?></b> GB</span>
-            </div> -->
-            <!-- <div class="stats-item">
-                <span>Новых / Удаленных:</span>
-                <span class="stats-val">
-                    <span class="badge exists" id="stat-new">0</span> / 
-                    <span class="badge deleted" id="stat-missing">0</span>
-                </span>
-            </div> -->
-        </div>
-    </div>
+
+</div>

@@ -30,7 +30,8 @@ if ($existingMetadata) {
             'codec_audio' => $existingMetadata['codec_audio'],
             'audio_channels' => $existingMetadata['audio_channels'],
             'language' => $existingMetadata['language'],
-            'subtitles' => (bool)$existingMetadata['subtitles']
+            'subtitles' => (bool)$existingMetadata['subtitles'],
+            'thumbnail' => $existingMetadata['thumbnail_path'] ?? null
         ]
     ]);
     exit;
@@ -54,8 +55,16 @@ if (!file_exists($filePath)) {
     exit;
 }
 
-// 3. Команда для ffprobe (извлечение метаданных в JSON формате)
-$cmd = escapeshellcmd('ffprobe -v error -show_format -show_streams -of json "' . $filePath . '"');
+
+// $cmd = escapeshellcmd('ffprobe -v error -show_format -show_streams -of json "' . $filePath . '"');
+$ffprobePath = 'C:\Users\praktikants\Desktop\ffmpeg\bin\ffprobe.exe'; 
+$ffmpegPath = 'C:\Users\praktikants\Desktop\ffmpeg\bin\ffmpeg.exe';
+$cmd = $ffprobePath . ' -v error -show_format -show_streams -of json "' . $filePath . '"';
+
+
+
+
+
 
 try {
     $output = shell_exec($cmd);
@@ -64,11 +73,11 @@ try {
         // Сохраняем пустые метаданные
         $insertStmt = $pdo->prepare("
             INSERT INTO video_metadata 
-            (file_id, duration, resolution, fps, bitrate, codec_video, codec_audio, audio_channels, language, subtitles)
-            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            (file_id, duration, resolution, fps, bitrate, codec_video, codec_audio, audio_channels, language, subtitles, thumbnail_path)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
         ");
         $insertStmt->execute([
-            $fileId, 0, '—', null, null, '—', '—', null, '—', false
+            $fileId, 0, '—', null, null, '—', '—', null, '—', false, $thumbnailPath
         ]);
         
         echo json_encode([
@@ -214,11 +223,45 @@ try {
         }
     }
 
+
+    // Генерация thumbnail
+    $thumbnailPath = null;
+    if ($metadata['duration'] > 0) {
+        // Создайте папку для thumbnails если её нет
+        $thumbDir = __DIR__ . '/../thumbnails/';
+        if (!file_exists($thumbDir)) {
+            mkdir($thumbDir, 0755, true);
+        }
+        
+        // Генерируем уникальное имя файла
+        $thumbnailFilename = 'thumb_' . $fileId . '_' . time() . '.jpg';
+        $thumbnailFullPath = $thumbDir . $thumbnailFilename;
+        
+        // Берем кадр с 1 секунды (или с 10% длительности)
+        $timePosition = min(1, $metadata['duration'] * 0.1);
+        
+        // Команда ffmpeg для извлечения кадра
+        $thumbCmd = $ffmpegPath . ' -ss ' . $timePosition . ' -i "' . $filePath . '" -vframes 1 -q:v 2 "' . $thumbnailFullPath . '" 2>&1';
+        
+        // shell_exec($thumbCmd, $thumbOutput, $thumbReturnCode);
+        $thumbOutput = shell_exec($thumbCmd);
+        
+        // Проверяем что файл создался
+        if (file_exists($thumbnailFullPath)) {
+            // Сохраняем относительный путь для фронтенда
+            $thumbnailPath = 'thumbnails/' . $thumbnailFilename;
+        }
+    }
+
+
+
+
+
     // 4. Сохраняем метаданные в БД
     $insertStmt = $pdo->prepare("
         INSERT INTO video_metadata 
-        (file_id, duration, width, height, resolution, fps, bitrate, codec_video, codec_audio, audio_channels, aspect_ratio, language, subtitles)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        (file_id, duration, width, height, resolution, fps, bitrate, codec_video, codec_audio, audio_channels, aspect_ratio, language, subtitles, thumbnail_path)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
     ");
     
     $insertStmt->execute([
@@ -234,12 +277,13 @@ try {
         $metadata['audio_channels'],
         $metadata['aspect_ratio'],
         $metadata['language'],
-        $metadata['subtitles'] ? 1 : 0
+        $metadata['subtitles'] ? 1 : 0,
+        $thumbnailPath
     ]);
 
     echo json_encode([
         'success' => true,
-        'metadata' => $metadata
+        'metadata' => array_merge($metadata, ['thumbnail' => $thumbnailPath])
     ]);
     
 } catch (Exception $e) {

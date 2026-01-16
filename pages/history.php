@@ -10,7 +10,7 @@
     if (empty($history_data)): ?>
         <div class="empty-state">
             <span class="material-icons-round">history</span>
-            <p>Событий пока нет. Запустите сканирование в админке.</p>
+            <p>Событий пока нет..</p>
         </div>
     <?php else: ?>
         <div class="timeline">

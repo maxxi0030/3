@@ -585,10 +585,11 @@ function runIncrementalScan($pdo) {
 
             try {
                 $dir_iterator = new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS);
-                $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::CATCH_GET_CHILD);
+                $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::LEAVES_ONLY, RecursiveIteratorIterator::CATCH_GET_CHILD);
 
                 foreach ($iterator as $info) {
-                    if (!$info->isReadable() || $info->isDir()) continue;
+                    // if (!$info->isReadable() || $info->isDir()) continue;
+                    if (!$info->isReadable()) continue;
 
                     $path = str_replace('\\', '/', $info->getPathname());
                     $name = $info->getFilename();
@@ -737,11 +738,11 @@ function runIncrementalScan($pdo) {
                 $newFileId = $insStmt->fetchColumn();
                 
                 // Записываем в историю
-                $logNew = $pdo->prepare("
-                    INSERT INTO file_changes (scan_history_id, file_id, change_type, new_path)
-                    VALUES (?, ?, 'added', ?)
-                ");
-                $logNew->execute([$currentScanId, $newFileId, $item['path']]);
+                // $logNew = $pdo->prepare("
+                //     INSERT INTO file_changes (scan_history_id, file_id, change_type, new_path)
+                //     VALUES (?, ?, 'added', ?)
+                // ");
+                // $logNew->execute([$currentScanId, $newFileId, $item['path']]);
                 
                 $stats['new']++;
             }
@@ -755,7 +756,8 @@ function runIncrementalScan($pdo) {
         $stmtDeleted = $pdo->prepare("
             SELECT id, file_path FROM files 
             WHERE temp_found = false 
-            AND file_status != 'deleted'
+
+            AND file_status NOT IN ('deleted', 'source_off')
             AND scan_path_id IN ($placeholders)
         ");
         $stmtDeleted->execute($activePathIds);
@@ -811,14 +813,28 @@ function runIncrementalScan($pdo) {
                 files_moved = ?,
                 status = 'success'
             WHERE id = ?
+
         ");
+
+
+        // $roots = $rootData['path']; прикол в том что у нас может быть несколько айди - хз как это вписать в бд
+        // $scanPathId = $rootData['id'];
+        // scan_path_id = ?,
+
         $updateScanStmt->execute([
+            // $scanPathId,
             $stats['new'],
             $stats['updated'],
             $stats['deleted'],
             $stats['moved'],
             $currentScanId
         ]);
+
+
+        // тут ласт скан в скан патче таблице обновим время
+        $stmt2 = $pdo->prepare("UPDATE scan_paths SET last_scanned_at = CURRENT_TIMESTAMP");
+        $stmt2->execute();
+
 
         // Сохраняем время скана в сессию
         $_SESSION['last_scan_time'] = date("H:i:s");

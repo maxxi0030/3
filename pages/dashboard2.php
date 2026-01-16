@@ -1,6 +1,15 @@
 <?php
-
+// require_once 'admin.php';
 // варик с БД
+
+// ФУНКЦИЯ ПОЛУЧЕНИЯ ПУТЕЙ ИЗ БД чтобы проверить есть ли пути для сканирования ваще
+function getSavedPaths($pdo) {
+    $stmt = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC");
+    return $stmt->fetchAll();
+}
+
+// Используем в admin.php
+$saved_paths = getSavedPaths($pdo);
 
 $stats = [
     'total' => 0, 
@@ -205,12 +214,15 @@ $files = array_slice($filesAll, 0, 20);
     </div>
 
     <div class="scan-container">
-        <button id="scanBtnDashboard" class="btn-primary" onclick="startScan(this)">
+        <button id="scanBtnDashboard" 
+            class="btn-primary sml-btn"
+            onclick="startScan(this)" 
+            <?= empty($saved_paths) ? 'disabled' : '' ?>>
             <span class="material-icons-round">sync</span>
             <span class="btn-text">Сканировать</span>
         </button>
         <div id="lastScanInfo" style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
-            Последний скан: <span id="lastTime"><?= $_SESSION['last_scan_time'] ?? '--:--' ?></span>
+            Last scan: <span id="lastTime">--:--</span>
         </div>
     </div>
 </header>
@@ -421,9 +433,10 @@ $files = array_slice($filesAll, 0, 20);
 
 
                                     <!-- кнопка открыть папку с файлом -->
-                                    <button class="btn-icon" 
+                                    <button class="btn-icon open-folder-btn"
                                             title="Открыть папку" 
-                                            onclick="openInExplorer('<?php echo addslashes($file['file_path']); ?>')">
+                                            onclick="openInExplorer('<?php echo addslashes($file['file_path']); ?>')"
+                                            <?= $file['file_status'] === 'deleted' ? 'disabled' : '' ?>>
                                         <span class="material-icons-round">folder</span>
                                     </button>
 

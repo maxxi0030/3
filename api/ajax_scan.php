@@ -113,14 +113,17 @@ if (isset($_GET['check_status'])) {
     $sql = "SELECT scan_finished_at FROM scan_history 
             WHERE status = 'success' 
             ORDER BY scan_finished_at DESC LIMIT 1";
-    $globalSync = $pdo->query($sql)->fetchColumn();
+    $lastScanTime = $pdo->query($sql)->fetchColumn();
     
-    // Если в базе пусто, возвращаем пустую строку
-    $globalSync = $globalSync ?: ''; 
-
+    // Форматируем время: из "2026-01-16 13:27:16.936187" в "01-16  13:27:16"
+    if ($lastScanTime) {
+        $lastScanTime = date('m/d  H:i:s', strtotime($lastScanTime));
+    }
+    
     echo json_encode([
         'scanning' => isset($_SESSION['is_scanning']),
-        'global_sync' => $globalSync
+        // 'global_sync' => $lastScanTime,
+        'last_scan_time' => $lastScanTime
     ]);
     exit;
 }
@@ -140,14 +143,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     if (is_array($result) && $result['status'] === 'success') {
         
         $s = $result['stats'];
-        $totalChanges = $s['new'] + $s['updated'] + $s['moved'] + $s['deleted'];
+        // $totalChanges = $s['new'] + $s['updated'] + $s['moved'] + $s['deleted'];  на будщее можно и это заюзать
 
-        $currentTime = date('H:i:s');
-        $currentDate = date('Y-m-d H:i:s');
+        $currentTime = date('m-d  H:i:s');
 
         $_SESSION['last_scan_time'] = $currentTime;
-
-        // УДАЛИЛИ: if ($totalChanges > 0) { file_put_contents(...) } — больше не нужно писать в файл
 
         // 3. Считаем общее кол-во файлов в базе быстрым запросом
         $totalFiles = $pdo->query("SELECT COUNT(*) FROM files")->fetchColumn();
@@ -161,9 +161,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         
         echo json_encode([
             'status' => 'success',
-            'last_time' => $currentTime,
-            // Просто отдаем текущую дату, так как скан только что закончился успешно
-            'global_sync' => $currentDate, 
+            'last_scan_time' => $currentTime,
+            // 'global_sync' => $currentTime, 
             'total_stats' => $total_stats,
             'stats' => $s
         ]);

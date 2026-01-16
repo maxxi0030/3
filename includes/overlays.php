@@ -23,7 +23,9 @@
     </div>
     
     <div class="file-info-content" id="infoContent">
+
         <div class="file-preview">
+            <img id="infoThumbnail" class="file-preview-thumbnail" style="display: none;">
             <span id="infoIcon" class="material-icons-round file-preview-icon">insert_drive_file</span>
         </div>
 
@@ -132,7 +134,9 @@
         </div>
 
         <div class="file-actions-panel">
-            <button id="openFolderBtn" class="btn-primary open-folder-btn">
+            <button id="openFolderBtn"
+                class="btn-primary open-folder-btn"
+                <?= $file['file_status'] === 'deleted' ? 'disabled' : '' ?>>
                 <span class="material-icons-round">folder</span> Перейти в папку
             </button>
         </div>
