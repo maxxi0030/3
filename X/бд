@@ -316,6 +316,7 @@ ADD COLUMN client_id INTEGER REFERENCES clients(id) ON DELETE SET NULL;
 CREATE INDEX idx_files_updated_at ON files(updated_at);
 CREATE INDEX idx_files_status_created ON files(file_status, created_at DESC);
 CREATE INDEX idx_files_client_id ON files(client_id);
+CREATE INDEX idx_files_hash ON files(file_hash);
 
 CREATE EXTENSION IF NOT EXISTS pg_trgm;
 CREATE INDEX idx_files_name_trgm ON files USING GIN (file_name gin_trgm_ops);

@@ -645,12 +645,15 @@ function runIncrementalScan($pdo) {
                     } else {
                         // --- ФАЙЛА НЕТ ПО ЭТОМУ ПУТИ ---
                         // Складываем во временный массив для последующего анализа
+                        $fileHash = hash_file('sha256', $path);
+
                         $pending_new[] = [
                             'scan_path_id' => $scanPathId,
                             'name' => $name,
                             'path' => $path,
                             'extension' => $extension,
-                            'size' => $size
+                            'size' => $size,
+                            'hash' => $fileHash
                         ];
                     }
                 }
@@ -665,15 +668,14 @@ function runIncrementalScan($pdo) {
         // ============================================
         
         foreach ($pending_new as $item) {
-            // Ищем потерянный файл с таким же именем и размером
+            // Ищем потерянный файл с таким же именем и размером = нет - хэшом!
             $moveStmt = $pdo->prepare("
                 SELECT id, file_path, scan_path_id, file_status FROM files 
-                WHERE file_name = ? 
-                AND file_size = ? 
+                WHERE file_hash = ? 
                 AND (temp_found = false OR scan_path_id IS NULL OR file_status = 'source_off')
                 LIMIT 1
             ");
-            $moveStmt->execute([$item['name'], $item['size']]);
+            $moveStmt->execute([$item['hash']]);
             $lostFile = $moveStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($lostFile) {
@@ -696,13 +698,15 @@ function runIncrementalScan($pdo) {
                 $updMove = $pdo->prepare("
                     UPDATE files SET 
                         file_path = ?,
+                        file_name = ?,
+                        file_hash = ?,
                         scan_path_id = ?,
                         file_status = ?,
                         temp_found = true,
                         updated_at = CURRENT_TIMESTAMP 
                     WHERE id = ?
                 ");
-                $updMove->execute([$item['path'], $item['scan_path_id'], $newStatus, $lostFile['id']]);
+                $updMove->execute([$item['path'], $item['name'], $item['hash'], $item['scan_path_id'], $newStatus, $lostFile['id']]);
 
                 // Записываем в историю
                 $logMove = $pdo->prepare("
@@ -724,8 +728,8 @@ function runIncrementalScan($pdo) {
             } else {
                 // --- НОВЫЙ ФАЙЛ ---
                 $insStmt = $pdo->prepare("
-                    INSERT INTO files (scan_path_id, file_name, file_path, file_extension, file_size, file_status, temp_found)
-                    VALUES (?, ?, ?, ?, ?, 'new', true)
+                    INSERT INTO files (scan_path_id, file_name, file_path, file_extension, file_size, file_hash, file_status, temp_found)
+                    VALUES (?, ?, ?, ?, ?, ?, 'new', true)
                     RETURNING id
                 ");
                 $insStmt->execute([
@@ -733,7 +737,8 @@ function runIncrementalScan($pdo) {
                     $item['name'], 
                     $item['path'], 
                     $item['extension'], 
-                    $item['size']
+                    $item['size'],
+                    $item['hash']
                 ]);
                 $newFileId = $insStmt->fetchColumn();
                 
