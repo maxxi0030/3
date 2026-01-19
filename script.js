@@ -524,58 +524,6 @@ function copyPath() {
 // ФУНКЦИИ ДЛЯ КНОПКИ СКАНИРОВАНИЯ
 // ====================================================================
 
-// светофор для кнопок скана
-// function startScan(btn) {
-//     // Находим все кнопки сканирования на странице (и на дашборде, и в сайдбаре если есть)
-//     const allScanBtns = document.querySelectorAll('[onclick="startScan(this)"]');
-    
-//     // Блокируем кнопки (Светофор - Красный)
-//     allScanBtns.forEach(b => {
-//         b.disabled = true;
-//         b.style.opacity = "0.6";
-//         b.querySelector('.btn-text').textContent = "Сканирование...";
-//         b.querySelector('.material-icons-round').classList.add('fa-spin'); // если есть анимация вращения
-//     });
-
-//     // Отправляем запрос на сервер
-//     fetch('bc/ajax_scan.php', { method: 'POST' })
-//     .then(response => response.json())
-//     .then(data => {
-//         if (data.status === 'success') {
-//             // Выводим результат (можно через alert или красивое уведомление)
-//             alert("Готово! Новых: " + data.stats.new);
-            
-//             // Обновляем время последнего скана на всех кнопках
-//             document.querySelectorAll('#lastTime').forEach(t => t.textContent = data.last_time);
-//         } else {
-//             alert("Ошибка: " + data.message);
-//         }
-//     })
-//     .catch(error => console.error('Error:', error))
-//     .finally(() => {
-//         // Разблокируем кнопки (Светофор - Зеленый)
-//         allScanBtns.forEach(b => {
-//             b.disabled = false;
-//             b.style.opacity = "1";
-//             b.querySelector('.btn-text').textContent = "Сканировать";
-//         });
-//     });
-// }
-
-// // При загрузке страницы проверяем, не идет ли сейчас скан (на случай, если пользователь обновил страницу)
-// window.onload = function() {
-//     fetch('bc/ajax_scan.php?check_status=1')
-//     .then(r => r.json())
-//     .then(data => {
-//         if (data.scanning) {
-//             // Если скан идет, имитируем нажатие для визуальной блокировки
-//             const btn = document.querySelector('[onclick="startScan(this)"]');
-//             if (btn) startScan(btn); 
-//         }
-//     });
-// }
-
-
 
 // Функция только для изменения внешнего вида кнопок скана 
 function setScanState(isLoading) {
@@ -680,66 +628,108 @@ window.addEventListener('load', function() {
 
 
 
-// СВЕТОФОР
+// УВЕДОМЛЕНИЕ
 
-// Переменная, которая хранит время последнего скана, известное ЭТОЙ странице
-// При загрузке страницы берем его из PHP
-// let lastKnownSyncTime = "<?= file_exists('last_scan_sync.txt') ? file_get_contents('last_scan_sync.txt') : '' ?>";
-// let notificationShown = false; // Флаг для контроля показа
+let lastSeenScanTime = null;
+let checkInterval = null;
 
-// function checkGlobalUpdate() {
-//     fetch('ajax_scan.php?check_status=1&get_sync=1')
-//     .then(r => r.json())
-//     .then(data => {
-//         // Если на сервере время скана новее
-//         if (data.global_sync && data.global_sync !== lastKnownSyncTime) {
-//             showUpdateNotify();
-//             // ✅ ИСПРАВЛЕНИЕ: Обновляем время, чтобы не показывать уведомление снова
-//             lastKnownSyncTime = data.global_sync;
-//             notificationShown = true; // Показываем только один раз до перезагрузки
-//         }
-//     })
-//     .catch(err => console.log("Ошибка проверки обновлений:", err));
-// }
 
-// function showUpdateNotify() {
-//     // Если плашка уже висит — ничего не делаем
-//     if (document.getElementById('sync-notify')) return;
+function checkForUpdates() {
+    fetch(`api/ajax_scan.php?check_status`)
+        .then(response => response.json())
+        .then(data => {
+            const currentScanTime = data.last_scan_time;
 
-//     const notify = document.createElement('div');
-//     notify.id = 'sync-notify';
-//     notify.innerHTML = `
-//         <div onclick="location.reload()" style="
-//             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%);
-//             background: #4F46E5; color: white; padding: 14px 28px;
-//             border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.3);
-//             z-index: 9999; cursor: pointer; display: flex; align-items: center;
-//             gap: 12px; font-weight: 500; animation: slideUp 0.4s ease-out;
-//         ">
-//             <span class="material-icons-round" style="animation: spin 2s infinite linear;">refresh</span>
-//             Данные обновились. Нажмите, чтобы увидеть изменения
-//         </div>
-//     `;
-//     document.body.appendChild(notify);
-// }
+            // Если это первый запуск после загрузки страницы
+            if (lastSeenScanTime === null) {
+                lastSeenScanTime = currentScanTime;
+                return;
+            }
+            
+            // Если время изменилось - значит был новый скан
+            if (currentScanTime && currentScanTime !== lastSeenScanTime) {
+                
+                // Проверяем, не запускал ли я сам этот скан
+                if (localStorage.getItem('i_started_scan') === 'true') {
+                    localStorage.removeItem('i_started_scan');
+                    lastSeenScanTime = currentScanTime;
+                    return; // Не показываем уведомление
+                }
+                
+                // Получаем детали последнего скана из БД
+                fetchScanDetails(currentScanTime);
+                
+                // Обновляем сохранённое время
+                lastSeenScanTime = currentScanTime;
+            }
+        })
+        .catch(error => console.error('Ошибка проверки обновлений:', error));
+}
 
-// // Добавьте CSS для анимации
-// const style = document.createElement('style');
-// style.textContent = `
-//     @keyframes slideUp {
-//         from { transform: translate(-50%, 100px); opacity: 0; }
-//         to { transform: translate(-50%, 0); opacity: 1; }
-//     }
-//     @keyframes spin {
-//         from { transform: rotate(0deg); }
-//         to { transform: rotate(360deg); }
-//     }
-// `;
-// document.head.appendChild(style);
+function fetchScanDetails(scanTime) {
+    // Получаем детали последнего успешного скана
+    fetch(`api/get-scan-details.php`)
+        .then(response => response.json())
+        .then(data => {
+            // Проверяем, что были реальные изменения
+            const hasRealChanges = data.files_added > 0 || data.files_updated > 0 || 
+                                   data.files_deleted > 0 || data.files_moved > 0;
+            
+            if (hasRealChanges) {
+                showUpdateNotify(data);
+            }
+        })
+        .catch(error => console.error('Ошибка получения деталей скана:', error));
+}
 
-// // Запускаем проверку каждые 10 секунд
-// setInterval(checkGlobalUpdate, 10000);
 
+function showUpdateNotify(scan) {
+    if (document.getElementById('sync-notify')) return;
+
+    if (checkInterval) {
+        clearInterval(checkInterval);
+        checkInterval = null;
+    }
+
+    let changesList = '';
+    if (scan.files_added > 0) changesList += `Добавлено: ${scan.files_added}<br>`;
+    if (scan.files_updated > 0) changesList += `Обновлено: ${scan.files_updated}<br>`;
+    if (scan.files_deleted > 0) changesList += `Удалено: ${scan.files_deleted}<br>`;
+    if (scan.files_moved > 0) changesList += `Перемещено: ${scan.files_moved}<br>`;
+
+    const notify = document.createElement('div');
+    notify.id = 'sync-notify';
+    notify.innerHTML = `
+        <div>
+            <button class="close-notify" onclick="document.getElementById('sync-notify').remove(); event.stopPropagation();">
+                <span class="material-icons-round">close</span>
+            </button>
+            <div onclick="location.reload()" style="cursor: pointer;">
+                <div style="display: flex; align-items: center; gap: 12px;">
+                    <span class="material-icons-round" style="animation: spin 2s infinite linear;">refresh</span>
+                    <strong>Новый скан завершён (${lastSeenScanTime})</strong>
+                </div>
+                <div style="font-size: 14px; opacity: 0.95; line-height: 1.6;">
+                    ${changesList}
+                </div>
+                <div style="font-size: 13px; opacity: 0.8; margin-top: 4px;">
+                    Нажмите, чтобы обновить страницу
+                </div>
+            </div>
+        </div>
+    `;
+    document.body.appendChild(notify);
+}
+
+
+
+// Запускаем проверку каждые н секунд
+checkInterval = setInterval(checkForUpdates, 90000);
+// checkInterval = setInterval(checkForUpdates, 7000);
+
+
+// Первая проверка сразу при загрузке (установит начальное значение)
+checkForUpdates();
 
 
 
@@ -770,18 +760,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 });
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -1025,3 +1003,23 @@ document.addEventListener('DOMContentLoaded', () => {
         loadMoreBtn.addEventListener('click', loadMoreFiles);
     }
 });
+
+
+
+
+
+
+
+// ====================================================================
+// ФУНКЦИИ ДЛЯ ИСТОРИИ
+// ====================================================================
+    function toggleFilters() {
+        const panel = document.getElementById('filtersPanel');
+        panel.style.display = panel.style.display === 'none' ? 'block' : 'none';
+    }
+    
+    function toggleDetails(id) {
+        const details = document.getElementById('details-' + id);
+        const isVisible = details.style.display !== 'none';
+        details.style.display = isVisible ? 'none' : 'block';
+    }
