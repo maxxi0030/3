@@ -606,7 +606,7 @@ window.addEventListener('load', function() {
             setScanState(true);
             // Запускаем опрос статуса, чтобы кнопка разблокировалась сама, когда скан кончится
             const checkInterval = setInterval(() => {
-                fetch('ajax_scan.php?check_status=1')
+                fetch('api/ajax_scan.php?check_status=1')
                 .then(r => r.json())
                 .then(d => {
                     if (!d.scanning) {
@@ -616,7 +616,7 @@ window.addEventListener('load', function() {
                         location.reload();
                     }
                 });
-            }, 3000); // проверяем каждые 3 секунды
+            }, 20000); // проверяем каждые 3 секунды
         }
     });
 });

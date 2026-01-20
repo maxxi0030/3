@@ -578,10 +578,20 @@ function runIncrementalScan($pdo) {
             $root = $rootData['path'];
             $scanPathId = $rootData['id'];
 
-            if (!is_dir($root)) {
+
+
+            $root = rtrim($root, '/\\');
+
+
+            if (!is_dir($root) && !file_exists($root)) {
                 error_log("Путь не существует или недоступен: $root");
                 continue;
             }
+
+            // if (!is_dir($root)) {
+            //     error_log("Путь не существует или недоступен: $root");
+            //     continue;
+            // }
 
             try {
                 $dir_iterator = new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS);
@@ -645,15 +655,12 @@ function runIncrementalScan($pdo) {
                     } else {
                         // --- ФАЙЛА НЕТ ПО ЭТОМУ ПУТИ ---
                         // Складываем во временный массив для последующего анализа
-                        $fileHash = hash_file('sha256', $path);
-
                         $pending_new[] = [
                             'scan_path_id' => $scanPathId,
                             'name' => $name,
                             'path' => $path,
                             'extension' => $extension,
-                            'size' => $size,
-                            'hash' => $fileHash
+                            'size' => $size
                         ];
                     }
                 }
@@ -668,14 +675,15 @@ function runIncrementalScan($pdo) {
         // ============================================
         
         foreach ($pending_new as $item) {
-            // Ищем потерянный файл с таким же именем и размером = нет - хэшом!
+            // Ищем потерянный файл с таким же именем и размером
             $moveStmt = $pdo->prepare("
                 SELECT id, file_path, scan_path_id, file_status FROM files 
-                WHERE file_hash = ? 
+                WHERE file_name = ? 
+                AND file_size = ? 
                 AND (temp_found = false OR scan_path_id IS NULL OR file_status = 'source_off')
                 LIMIT 1
             ");
-            $moveStmt->execute([$item['hash']]);
+            $moveStmt->execute([$item['name'], $item['size']]);
             $lostFile = $moveStmt->fetch(PDO::FETCH_ASSOC);
 
             if ($lostFile) {
@@ -698,15 +706,13 @@ function runIncrementalScan($pdo) {
                 $updMove = $pdo->prepare("
                     UPDATE files SET 
                         file_path = ?,
-                        file_name = ?,
-                        file_hash = ?,
                         scan_path_id = ?,
                         file_status = ?,
                         temp_found = true,
                         updated_at = CURRENT_TIMESTAMP 
                     WHERE id = ?
                 ");
-                $updMove->execute([$item['path'], $item['name'], $item['hash'], $item['scan_path_id'], $newStatus, $lostFile['id']]);
+                $updMove->execute([$item['path'], $item['scan_path_id'], $newStatus, $lostFile['id']]);
 
                 // Записываем в историю
                 $logMove = $pdo->prepare("
@@ -728,8 +734,8 @@ function runIncrementalScan($pdo) {
             } else {
                 // --- НОВЫЙ ФАЙЛ ---
                 $insStmt = $pdo->prepare("
-                    INSERT INTO files (scan_path_id, file_name, file_path, file_extension, file_size, file_hash, file_status, temp_found)
-                    VALUES (?, ?, ?, ?, ?, ?, 'new', true)
+                    INSERT INTO files (scan_path_id, file_name, file_path, file_extension, file_size, file_status, temp_found)
+                    VALUES (?, ?, ?, ?, ?, 'new', true)
                     RETURNING id
                 ");
                 $insStmt->execute([
@@ -737,8 +743,7 @@ function runIncrementalScan($pdo) {
                     $item['name'], 
                     $item['path'], 
                     $item['extension'], 
-                    $item['size'],
-                    $item['hash']
+                    $item['size']
                 ]);
                 $newFileId = $insStmt->fetchColumn();
                 
