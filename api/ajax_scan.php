@@ -145,7 +145,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $s = $result['stats'];
         // $totalChanges = $s['new'] + $s['updated'] + $s['moved'] + $s['deleted'];  на будщее можно и это заюзать
 
-        $currentTime = date('m-d  H:i:s');
+        $currentTime = date('m/d  H:i:s');
 
         $_SESSION['last_scan_time'] = $currentTime;
 

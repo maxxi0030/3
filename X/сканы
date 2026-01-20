@@ -1,1 +1,113 @@
-\\lvnas01\ftproot\translator\Discovery
+; \\lvnas01\ftproot\translator\Discovery
+
+
+
+.reapeaks - файлы с таким расширениям не показывать!
+
+хэши мы убрали - поэтому надо придумать теперь как будет искатся файлы перемещенные (переименованные)
+
+
+
+Новые файлы - ок 
+
+Удаленные файлы - ок 
+
+Измененные файлы (по размеру, дате модификации, хешу?) - так то по размеру 
+
+Переименованные/перемещенные файлы - раньше по хешу было 
+
+
+
+щас скрипт запускается по нажатию кнопки на сайте и потом идет обработка ajax_scan.php: 
+
+session_start();
+
+// 1. Подключаем базу данных (там создается переменная $pdo)
+require_once __DIR__ . '/../db/db_connect.php';
+require_once __DIR__ . '/../bc/scanner2.php';
+date_default_timezone_set('Europe/Riga');
+
+header('Content-Type: application/json');
+
+// Проверка статуса (оставляем как есть, это удобно для фронтенда)
+if (isset($_GET['check_status'])) {
+    // Берем дату завершения последнего УСПЕШНОГО сканирования из БД
+    $sql = "SELECT scan_finished_at FROM scan_history 
+            WHERE status = 'success' 
+            ORDER BY scan_finished_at DESC LIMIT 1";
+    $lastScanTime = $pdo->query($sql)->fetchColumn();
+    
+    // Форматируем время: из "2026-01-16 13:27:16.936187" в "01-16  13:27:16"
+    if ($lastScanTime) {
+        $lastScanTime = date('m/d  H:i:s', strtotime($lastScanTime));
+    }
+    
+    echo json_encode([
+        'scanning' => isset($_SESSION['is_scanning']),
+        // 'global_sync' => $lastScanTime,
+        'last_scan_time' => $lastScanTime
+    ]);
+    exit;
+}
+
+// ЗАПУСК СКАНА
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+
+    $_SESSION['is_scanning'] = true;
+    session_write_close();
+
+    // 2. ВЫЗЫВАЕМ СКАННЕР, передавая ему $pdo
+    $result = runIncrementalScan($pdo);
+
+    session_start();
+    unset($_SESSION['is_scanning']);
+
+    if (is_array($result) && $result['status'] === 'success') {
+        
+        $s = $result['stats'];
+        // $totalChanges = $s['new'] + $s['updated'] + $s['moved'] + $s['deleted'];  на будщее можно и это заюзать
+
+        $currentTime = date('m/d  H:i:s');
+
+        $_SESSION['last_scan_time'] = $currentTime;
+
+        // 3. Считаем общее кол-во файлов в базе быстрым запросом
+        $totalFiles = $pdo->query("SELECT COUNT(*) FROM files")->fetchColumn();
+
+        $total_stats = [
+            'total' => $totalFiles,
+            'new' => $s['new'],
+            'moved' => $s['moved'],
+            'deleted' => $s['deleted']
+        ];
+        
+        echo json_encode([
+            'status' => 'success',
+            'last_scan_time' => $currentTime,
+            // 'global_sync' => $currentTime, 
+            'total_stats' => $total_stats,
+            'stats' => $s
+        ]);
+
+    } else {
+        echo json_encode([
+            'status' => 'error', 
+            'message' => is_array($result) ? $result['message'] : $result
+        ]);
+    }
+    exit;
+}
+
+
+. не работает потому что была добавлена mtime но пока что колонки в бд такой нету.
+да - хотелось бы видеть хоть какойто минимальный прогресс.
+и некст вопрос - фулл скан 
+это когда мы четко прям проходимся по каждому файлу - он может быть полезен в самом начале - когда еще ничего никогда не сканировалось. 
+например: добавили новый путь который никогда еще не сканировался - именно тогда этот путь будет просканировать фулл сканом.
+
+поэтому доступ к этой кнопке будет доступен только админку и именно он принимает решение когда ее использовать.
+
+дальше фулл скан особо смысла использовать нету, потому что будет quick скан отдельной кнопкой: 
+там скан будет происходить намного быстрее и удаленные - перемещенные - переименновоные - обновленные будут также четко находится и помечатся без каких либо проблем. 
+
+эта кнопка будет доступна всем на главной странице. 

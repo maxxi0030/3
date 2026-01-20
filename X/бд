@@ -325,6 +325,16 @@ CREATE INDEX idx_files_name_trgm ON files USING GIN (file_name gin_trgm_ops);
 + добавлено для сохранения цвета выделеия клиента
 ALTER TABLE clients ADD COLUMN color VARCHAR(7) DEFAULT NULL;
 
+
+
+
++
+ALTER TABLE files ADD COLUMN last_seen_mtime BIGINT;
+
+-- Заполни существующие записи (если есть)
+UPDATE files SET last_seen_mtime = EXTRACT(EPOCH FROM updated_at)::BIGINT 
+WHERE last_seen_mtime IS NULL;
+
 ; =====================================================
 ; =====================================================
 -- ============================================

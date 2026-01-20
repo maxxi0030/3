@@ -421,7 +421,7 @@ body {
     display: flex;
     align-items: center;
     gap: 12px;
-    word-break: break-all;
+    /* word-break: break-all; */
 }
 .file-icon {
     color: var(--accent);
