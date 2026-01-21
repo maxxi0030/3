@@ -374,6 +374,9 @@ CREATE INDEX IF NOT EXISTS idx_files_scan_path ON files (scan_path_id);
 CREATE INDEX IF NOT EXISTS idx_files_status ON files (file_status);
 
 
+++++
+ALTER TABLE files ALTER COLUMN file_name TYPE varchar(500);
+ALTER TABLE files ALTER COLUMN file_path TYPE text;
 
 ; =====================================================
 ; =====================================================
