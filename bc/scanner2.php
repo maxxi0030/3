@@ -1,46 +1,11 @@
 <?php
-// full scanner
-
-
-
-// в каком случае будет запускатся полный скан? 
-//     в случае если новый путь/диск. 
-
-//     и полный скан будет просто искать какие файлы появились новые от этого нового пути. 
-    
-//      ТО ЕСТЬ - все что может выдать полный сканнер это статус - new 
-     
-    
-// распознаем мы все новые пути через таблицу scanner_path - 
-// то есть если полный скан этого пути еще не разу не воспроизводился - то именно тогда он выполнится.
-
-
-// потом можно будет выполнить вручуню полный скан - но надо придумать как. 
-
-// полный сканнер будет сверяться с прошлыми если они есть! (просто на всякий пожарный?)
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 function runIncrementalScan($pdo) {
-    // Увеличиваем время выполнения, если папок много
+    // Увеличиваем лимиты для тяжелой работы
     set_time_limit(1200);
     ini_set('memory_limit', '512M');
 
-    $stats = ['new' => 0, 'moved' => 0, 'renamed' => 0, 'deleted' => 0, 'updated' => 0];
+    $stats = ['new' => 0, 'moved' => 0, 'deleted' => 0, 'updated' => 0];
 
     // ============================================
     // 0. СОЗДАЁМ ЗАПИСЬ О НАЧАЛЕ СКАНИРОВАНИЯ
@@ -56,338 +21,260 @@ function runIncrementalScan($pdo) {
 
     try {
         // ============================================
-        // 1. ПОЛУЧАЕМ ПУТИ ДЛЯ СКАНИРОВАНИЯ
+        // 1. ПОЛУЧАЕМ ПУТИ ДЛЯ СКАНИРОВАНИЯ (ЭТО ПЕРВОЕ!)
         // ============================================
         $stmt = $pdo->query("SELECT id, path FROM scan_paths");
         $roots = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         if (empty($roots)) {
-            // Обновляем статус скана как ошибка
-            $pdo->prepare("UPDATE scan_history SET status = 'error', error_message = ?, scan_finished_at = CURRENT_TIMESTAMP WHERE id = ?")
-                ->execute(['Добавьте пути в админке', $currentScanId]);
-            
-            return ["status" => "error", "message" => "Добавьте пути в админке"];
+            throw new Exception("Нет активных путей для сканирования (таблица scan_paths пуста)");
         }
 
-        // ============================================
-        // СБРОС ФЛАГОВ ПЕРЕД СКАНИРОВАНИЕМ
-        // ============================================
-        // Получаем ID всех активных путей
+        // Формируем ID для SQL запросов
         $activePathIds = array_column($roots, 'id');
         $placeholders = implode(',', array_fill(0, count($activePathIds), '?'));
-        
-        // Помечаем файлы из активных путей И файлы с отключенными источниками
-        $resetStmt = $pdo->prepare("
-            UPDATE files 
-            SET temp_found = false 
-            WHERE scan_path_id IN ($placeholders) 
-            OR scan_path_id IS NULL 
-            OR file_status = 'source_off'
-        ");
-        $resetStmt->execute($activePathIds);
 
         // ============================================
-        // 2. СКАНИРОВАНИЕ (Фаза 1: Сбор данных)
+        // 2. ЗАГРУЖАЕМ "КАРТУ" СУЩЕСТВУЮЩИХ ФАЙЛОВ
         // ============================================
+        // Теперь $placeholders и $activePathIds существуют, можно делать запрос
+        $existingFilesMap = [];
         
-        // Временный массив для потенциально новых файлов
-        $pending_new = [];
+        // Берем файлы из активных путей ИЛИ те, что потеряли путь (scan_path_id IS NULL)
+        $sqlFiles = "SELECT id, file_path, file_size, file_status, scan_path_id 
+                     FROM files 
+                     WHERE scan_path_id IN ($placeholders) OR scan_path_id IS NULL";
+        
+        $stmtFiles = $pdo->prepare($sqlFiles);
+        $stmtFiles->execute($activePathIds);
+
+        while ($row = $stmtFiles->fetch(PDO::FETCH_ASSOC)) {
+            // Ключ = путь файла. Это позволит искать файл за 0.0001 сек.
+            $existingFilesMap[$row['file_path']] = $row;
+        }
+
+        // Инициализируем массивы для изменений
+        $filesToUpdate = [];    // Изменился размер/статус
+        $filesToInsert = [];    // Новые файлы
+        $potentialNewFiles = [];// Кандидаты в новые (для проверки перемещений)
+        $foundFileIds = [];     // ID файлов, которые реально существуют на диске
+
+        // ============================================
+        // 3. СКАНИРОВАНИЕ ДИСКА (RAM Only)
+        // ============================================
         
         foreach ($roots as $rootData) {
-            $root = $rootData['path'];
+            $root = rtrim($rootData['path'], '/\\');
             $scanPathId = $rootData['id'];
 
-
-
-            $root = rtrim($root, '/\\');
-
-
-            if (!is_dir($root) && !file_exists($root)) {
-                error_log("Путь не существует или недоступен: $root");
+            if (!is_dir($root)) {
+                // Логируем, но не останавливаем весь процесс
+                error_log("Путь недоступен: $root");
                 continue;
             }
 
-            // if (!is_dir($root)) {
-            //     error_log("Путь не существует или недоступен: $root");
-            //     continue;
-            // }
+            $dir_iterator = new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS);
+            $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::LEAVES_ONLY, RecursiveIteratorIterator::CATCH_GET_CHILD);
 
-            try {
-                $dir_iterator = new RecursiveDirectoryIterator($root, RecursiveDirectoryIterator::SKIP_DOTS);
-                $iterator = new RecursiveIteratorIterator($dir_iterator, RecursiveIteratorIterator::LEAVES_ONLY, RecursiveIteratorIterator::CATCH_GET_CHILD);
+            foreach ($iterator as $info) {
+                if (!$info->isReadable()) continue;
 
-                foreach ($iterator as $info) {
-                    // if (!$info->isReadable() || $info->isDir()) continue;
-                    if (!$info->isReadable()) continue;
+                $path = str_replace('\\', '/', $info->getPathname());
+                $size = $info->getSize();
+                $name = $info->getFilename();
+                
+                // ПРОВЕРКА В ПАМЯТИ (Вместо SQL)
+                if (isset($existingFilesMap[$path])) {
+                    // --- Файл уже есть в базе ---
+                    $existing = $existingFilesMap[$path];
+                    $foundFileIds[$existing['id']] = true; // Отмечаем: "Я видел этот файл, не удаляй его"
 
-                    $path = str_replace('\\', '/', $info->getPathname());
-                    $name = $info->getFilename();
-                    $size = $info->getSize();
-                    
-                    // Получаем расширение файла
-                    $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
-
-                    // ПРОВЕРКА: Есть ли файл по этому пути?
-                    $checkStmt = $pdo->prepare("SELECT id, file_size, scan_path_id, file_status FROM files WHERE file_path = ?");
-                    $checkStmt->execute([$path]);
-                    $existing = $checkStmt->fetch(PDO::FETCH_ASSOC);
-
-                    if ($existing) {
-                        // --- ФАЙЛ УЖЕ ЕСТЬ ПО ЭТОМУ ПУТИ ---
-                        $updateFields = ["temp_found = true"];
-                        $params = [];
-                        
-                        // Проверяем изменился ли размер
-                        if ($existing['file_size'] != $size) {
-                            $updateFields[] = "file_size = ?";
-                            $updateFields[] = "file_status = 'updated'";
-                            $updateFields[] = "updated_at = CURRENT_TIMESTAMP";
-                            $params[] = $size;
-                            
-                            // Записываем в историю изменений
-                            $logUpdate = $pdo->prepare("
-                                INSERT INTO file_changes (scan_history_id, file_id, change_type, old_path, new_path, details)
-                                VALUES (?, ?, 'updated', ?, ?, ?::jsonb)
-                            ");
-                            $logUpdate->execute([
-                                $currentScanId,
-                                $existing['id'],
-                                $path,
-                                $path,
-                                json_encode(['old_size' => $existing['file_size'], 'new_size' => $size])
-                            ]);
-                            
-                            $stats['updated']++;
-                        } else {
-                            // Размер не изменился
-                            // Возвращаем в 'active' все статусы, КРОМЕ 'active'
-                            if ($existing['file_status'] !== 'active') {
-                                $updateFields[] = "file_status = 'active'";
-                                $updateFields[] = "updated_at = CURRENT_TIMESTAMP";
-                            }
-                        }
-
-                        $params[] = $existing['id'];
-                        $sql = "UPDATE files SET " . implode(", ", $updateFields) . " WHERE id = ?";
-                        $pdo->prepare($sql)->execute($params);
-
-                    } else {
-                        // --- ФАЙЛА НЕТ ПО ЭТОМУ ПУТИ ---
-                        // Складываем во временный массив для последующего анализа
-                        $pending_new[] = [
-                            'scan_path_id' => $scanPathId,
-                            'name' => $name,
-                            'path' => $path,
-                            'extension' => $extension,
-                            'size' => $size
+                    // Проверяем изменения
+                    if ($existing['file_size'] != $size) {
+                        $filesToUpdate[] = [
+                            'id' => $existing['id'],
+                            'size' => $size,
+                            'status' => 'updated',
+                            'old_size' => $existing['file_size']
+                        ];
+                        $stats['updated']++;
+                    } elseif ($existing['file_status'] !== 'active') {
+                        // Если файл был помечен как удаленный, но мы его нашли
+                        $filesToUpdate[] = [
+                            'id' => $existing['id'],
+                            'size' => $size,
+                            'status' => 'active',
+                            'old_size' => $size
                         ];
                     }
+
+                } else {
+                    // --- Файла нет в базе по этому пути ---
+                    $extension = strtolower(pathinfo($name, PATHINFO_EXTENSION));
+                    $potentialNewFiles[] = [
+                        'scan_path_id' => $scanPathId,
+                        'name' => $name,
+                        'path' => $path,
+                        'extension' => $extension,
+                        'size' => $size
+                    ];
                 }
-            } catch (Exception $e) {
-                error_log("Ошибка при сканировании пути $root: " . $e->getMessage());
-                continue;
             }
         }
 
         // ============================================
-        // 2.5 АНАЛИЗ ПЕРЕМЕЩЕНИЙ (Фаза 2: После сканирования)
+        // 4. АНАЛИЗ ПЕРЕМЕЩЕНИЙ (RAM Only)
         // ============================================
-        
-        foreach ($pending_new as $item) {
-            // Ищем потерянный файл с таким же именем и размером
-            $moveStmt = $pdo->prepare("
-                SELECT id, file_path, scan_path_id, file_status FROM files 
-                WHERE file_name = ? 
-                AND file_size = ? 
-                AND (temp_found = false OR scan_path_id IS NULL OR file_status = 'source_off')
-                LIMIT 1
-            ");
-            $moveStmt->execute([$item['name'], $item['size']]);
-            $lostFile = $moveStmt->fetch(PDO::FETCH_ASSOC);
+        $filesToMove = [];
+        $lostFilesMap = []; // "Потеряшки": есть в БД, но не найдены по старому пути
 
-            if ($lostFile) {
-                // --- ФАЙЛ ПЕРЕМЕСТИЛСЯ ИЛИ ИСТОЧНИК БЫЛ ВОССТАНОВЛЕН ---
-                $oldPath = $lostFile['file_path'];
-                $oldStatus = $lostFile['file_status'];
+        // Собираем список потерянных файлов из existingFilesMap
+        foreach ($existingFilesMap as $path => $file) {
+            // Если ID нет в найденных И статус не "источник отключен"
+            if (!isset($foundFileIds[$file['id']]) && $file['file_status'] !== 'source_off') {
+                // Группируем по "Имя_Размер" для поиска дубликатов
+                $key = basename($path) . '_' . $file['file_size'];
+                $lostFilesMap[$key][] = $file;
+            }
+        }
 
-                // Определяем новый статус
-                if ($oldStatus === 'source_off' || $lostFile['scan_path_id'] === null) {
-                    // Источник был отключен, теперь включён обратно
-                    $newStatus = 'active';
-                    $changeType = 'restored';
-                } else {
-                    // Обычное перемещение
-                    $newStatus = 'moved';
-                    $changeType = 'moved';
-                }
+        // Проверяем новых кандидатов: не являются ли они перемещенными старыми?
+        foreach ($potentialNewFiles as $newItem) {
+            $key = $newItem['name'] . '_' . $newItem['size'];
 
-                // Обновляем файл
-                $updMove = $pdo->prepare("
-                    UPDATE files SET 
-                        file_path = ?,
-                        scan_path_id = ?,
-                        file_status = ?,
-                        temp_found = true,
-                        updated_at = CURRENT_TIMESTAMP 
-                    WHERE id = ?
-                ");
-                $updMove->execute([$item['path'], $item['scan_path_id'], $newStatus, $lostFile['id']]);
-
-                // Записываем в историю
-                $logMove = $pdo->prepare("
-                    INSERT INTO file_changes (scan_history_id, file_id, change_type, old_path, new_path)
-                    VALUES (?, ?, ?, ?, ?)
-                ");
-                $logMove->execute([
-                    $currentScanId,
-                    $lostFile['id'],
-                    $changeType,
-                    $oldPath,
-                    $item['path']
-                ]);
-
-                if ($changeType === 'moved') {
-                    $stats['moved']++;
-                }
+            if (isset($lostFilesMap[$key]) && count($lostFilesMap[$key]) > 0) {
+                // УРА! Это перемещение
+                $lostFile = array_shift($lostFilesMap[$key]); // Берем первого совпавшего
                 
+                $filesToMove[] = [
+                    'id' => $lostFile['id'],
+                    'new_path' => $newItem['path'],
+                    'scan_path_id' => $newItem['scan_path_id'],
+                    'old_path' => $lostFile['file_path']
+                ];
+                
+                $foundFileIds[$lostFile['id']] = true; // Теперь он найден (чтобы не удалился)
+                $stats['moved']++;
             } else {
-                // --- НОВЫЙ ФАЙЛ ---
-                $insStmt = $pdo->prepare("
-                    INSERT INTO files (scan_path_id, file_name, file_path, file_extension, file_size, file_status, temp_found)
-                    VALUES (?, ?, ?, ?, ?, 'new', true)
-                    RETURNING id
-                ");
-                $insStmt->execute([
-                    $item['scan_path_id'], 
-                    $item['name'], 
-                    $item['path'], 
-                    $item['extension'], 
-                    $item['size']
-                ]);
-                $newFileId = $insStmt->fetchColumn();
-                
-                // Записываем в историю
-                // $logNew = $pdo->prepare("
-                //     INSERT INTO file_changes (scan_history_id, file_id, change_type, new_path)
-                //     VALUES (?, ?, 'added', ?)
-                // ");
-                // $logNew->execute([$currentScanId, $newFileId, $item['path']]);
-                
+                // Это точно новый файл
+                $filesToInsert[] = $newItem;
                 $stats['new']++;
             }
         }
 
         // ============================================
-        // 3. ФИНАЛИЗАЦИЯ (Удаленные файлы)
+        // 5. МАССОВАЯ ЗАПИСЬ В БД (ТРАНЗАКЦИЯ)
         // ============================================
-        
-        // Получаем список удалённых файлов из АКТИВНЫХ путей
-        $stmtDeleted = $pdo->prepare("
-            SELECT id, file_path FROM files 
-            WHERE temp_found = false 
+        $pdo->beginTransaction();
 
-            AND file_status NOT IN ('deleted', 'source_off')
-            AND scan_path_id IN ($placeholders)
-        ");
-        $stmtDeleted->execute($activePathIds);
-        $deletedFiles = $stmtDeleted->fetchAll(PDO::FETCH_ASSOC);
-        
-        $stats['deleted'] = count($deletedFiles);
-
-        // Логируем каждый удалённый файл
-        if ($stats['deleted'] > 0) {
-            $logDelete = $pdo->prepare("
-                INSERT INTO file_changes (scan_history_id, file_id, change_type, old_path)
-                VALUES (?, ?, 'deleted', ?)
-            ");
+        // 5.1 Updates
+        if (!empty($filesToUpdate)) {
+            $updStmt = $pdo->prepare("UPDATE files SET file_size = ?, file_status = ?, temp_found = true, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            // Логирование изменений размера
+            $logStmt = $pdo->prepare("INSERT INTO file_changes (scan_history_id, file_id, change_type, old_path, new_path, details) VALUES (?, ?, 'updated', (SELECT file_path FROM files WHERE id=?), (SELECT file_path FROM files WHERE id=?), ?::jsonb)");
             
-            foreach ($deletedFiles as $deletedFile) {
-                $logDelete->execute([
-                    $currentScanId,
-                    $deletedFile['id'],
-                    $deletedFile['file_path']
-                ]);
+            foreach ($filesToUpdate as $item) {
+                $updStmt->execute([$item['size'], $item['status'], $item['id']]);
+                
+                if ($item['status'] === 'updated') {
+                     $logStmt->execute([
+                        $currentScanId, $item['id'], $item['id'], $item['id'], 
+                        json_encode(['old_size' => $item['old_size'], 'new_size' => $item['size']])
+                    ]);
+                }
             }
         }
 
-        // Массово обновляем статус для всех пропавших файлов из активных путей
-        $updateDeletedStmt = $pdo->prepare("
-            UPDATE files 
-            SET file_status = 'deleted', updated_at = CURRENT_TIMESTAMP
-            WHERE temp_found = false 
-            AND file_status != 'deleted'
-            AND scan_path_id IN ($placeholders)
-        ");
-        $updateDeletedStmt->execute($activePathIds);
+        // 5.2 Moves
+        if (!empty($filesToMove)) {
+            $movStmt = $pdo->prepare("UPDATE files SET file_path = ?, scan_path_id = ?, file_status = 'moved', temp_found = true, updated_at = CURRENT_TIMESTAMP WHERE id = ?");
+            $logMov = $pdo->prepare("INSERT INTO file_changes (scan_history_id, file_id, change_type, old_path, new_path) VALUES (?, ?, 'moved', ?, ?)");
+            
+            foreach ($filesToMove as $item) {
+                $movStmt->execute([$item['new_path'], $item['scan_path_id'], $item['id']]);
+                $logMov->execute([$currentScanId, $item['id'], $item['old_path'], $item['new_path']]);
+            }
+        }
 
-        // Помечаем файлы, чьи пути были удалены из админки
-        // НО только если они ещё не были помечены как source_off
-        $pdo->exec("
-            UPDATE files 
-            SET file_status = 'source_off', updated_at = CURRENT_TIMESTAMP
-            WHERE file_status != 'source_off'
-            AND (scan_path_id IS NULL OR scan_path_id NOT IN (SELECT id FROM scan_paths))
-        ");
+        // 5.3 Inserts (Чанками по 500)
+        if (!empty($filesToInsert)) {
+            foreach (array_chunk($filesToInsert, 500) as $chunk) {
+                $placeholdersInsert = [];
+                $paramsInsert = [];
+                foreach ($chunk as $f) {
+                    $placeholdersInsert[] = "(?, ?, ?, ?, ?, 'new', true)";
+                    array_push($paramsInsert, $f['scan_path_id'], $f['name'], $f['path'], $f['extension'], $f['size']);
+                }
+                $sql = "INSERT INTO files (scan_path_id, file_name, file_path, file_extension, file_size, file_status, temp_found) VALUES " . implode(',', $placeholdersInsert);
+                $pdo->prepare($sql)->execute($paramsInsert);
+            }
+        }
+
+        // 5.4 Deletes (Кого нет в foundFileIds)
+        $idsToDelete = [];
+        foreach ($existingFilesMap as $path => $file) {
+            // Если не нашли И статус не 'source_off' И не 'deleted' (чтобы сто раз не удалять)
+            if (!isset($foundFileIds[$file['id']]) && 
+                $file['file_status'] !== 'source_off' && 
+                $file['file_status'] !== 'deleted') {
+                $idsToDelete[] = $file['id'];
+            }
+        }
+
+        if (!empty($idsToDelete)) {
+            foreach (array_chunk($idsToDelete, 1000) as $chunkIds) {
+                $inQuery = implode(',', array_fill(0, count($chunkIds), '?'));
+                
+                // Лог удаления
+                $logDelSql = "INSERT INTO file_changes (scan_history_id, file_id, change_type, old_path) 
+                              SELECT ?, id, 'deleted', file_path FROM files WHERE id IN ($inQuery)";
+                $pdo->prepare($logDelSql)->execute(array_merge([$currentScanId], $chunkIds));
+
+                // Обновление статуса
+                $pdo->prepare("UPDATE files SET file_status = 'deleted', updated_at = CURRENT_TIMESTAMP, temp_found = false WHERE id IN ($inQuery)")
+                    ->execute($chunkIds);
+            }
+            $stats['deleted'] = count($idsToDelete);
+        }
+
+        // 5.5 Отметка source_off для тех, чьи пути удалены из админки (опционально)
+        // Это можно делать отдельным кроном, но можно и здесь
+        
+        $pdo->commit();
 
         // ============================================
-        // 4. ОБНОВЛЯЕМ ЗАПИСЬ О СКАНИРОВАНИИ
+        // 6. ФИНАЛИЗАЦИЯ
         // ============================================
-        $updateScanStmt = $pdo->prepare("
+        $pdo->prepare("
             UPDATE scan_history SET 
                 scan_finished_at = CURRENT_TIMESTAMP,
-                files_found = (SELECT COUNT(*) FROM files WHERE temp_found = true),
-                files_added = ?,
-                files_updated = ?,
-                files_deleted = ?,
-                files_moved = ?,
+                files_found = (SELECT COUNT(*) FROM files WHERE file_status != 'deleted' AND file_status != 'source_off'),
+                files_added = ?, files_updated = ?, files_deleted = ?, files_moved = ?,
                 status = 'success'
             WHERE id = ?
+        ")->execute([$stats['new'], $stats['updated'], $stats['deleted'], $stats['moved'], $currentScanId]);
 
-        ");
-
-
-        // $roots = $rootData['path']; прикол в том что у нас может быть несколько айди - хз как это вписать в бд
-        // $scanPathId = $rootData['id'];
-        // scan_path_id = ?,
-
-        $updateScanStmt->execute([
-            // $scanPathId,
-            $stats['new'],
-            $stats['updated'],
-            $stats['deleted'],
-            $stats['moved'],
-            $currentScanId
-        ]);
-
-
-        // тут ласт скан в скан патче таблице обновим время
-        $stmt2 = $pdo->prepare("UPDATE scan_paths SET last_scanned_at = CURRENT_TIMESTAMP");
-        $stmt2->execute();
-
-
-        // Сохраняем время скана в сессию
-        $_SESSION['last_scan_time'] = date("H:i:s");
+        // Обновляем время последнего скана для путей
+        $pdo->prepare("UPDATE scan_paths SET last_scanned_at = CURRENT_TIMESTAMP WHERE id IN ($placeholders)")->execute($activePathIds);
 
         return [
             'status' => 'success',
             'message' => 'Сканирование завершено',
-            'stats' => $stats,
-            'scan_id' => $currentScanId
+            'stats' => $stats
         ];
 
     } catch (Exception $e) {
-        // В случае ошибки обновляем статус скана
-        $pdo->prepare("
-            UPDATE scan_history SET 
-                status = 'error', 
-                error_message = ?,
-                scan_finished_at = CURRENT_TIMESTAMP
-            WHERE id = ?
-        ")->execute([$e->getMessage(), $currentScanId]);
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        
+        // Записываем ошибку
+        $pdo->prepare("UPDATE scan_history SET status = 'error', error_message = ?, scan_finished_at = CURRENT_TIMESTAMP WHERE id = ?")
+            ->execute([$e->getMessage(), $currentScanId]);
         
         return [
             'status' => 'error',
-            'message' => 'Ошибка при сканировании: ' . $e->getMessage()
+            'message' => 'Ошибка: ' . $e->getMessage()
         ];
     }
 }

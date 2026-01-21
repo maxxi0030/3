@@ -616,7 +616,7 @@ window.addEventListener('load', function() {
                         location.reload();
                     }
                 });
-            }, 20000); // проверяем каждые 3 секунды
+            }, 3000); // проверяем каждые 3 секунды
         }
     });
 });
