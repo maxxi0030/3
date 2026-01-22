@@ -326,7 +326,7 @@ $files = array_slice($filesAll, 0, 20);
                     <th width="120">Клиент</th>
                     <th width="100" class="hide-mobile">Размер</th>
                     <th width="120">Статус</th>
-                    <th width="150" class="hide-mobile">Дата</th>
+                    <th width="150" class="hide-mobile">Добавлено</th>
                     <th width="100">Действия</th>
                 </tr>
             </thead>
