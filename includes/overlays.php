@@ -11,10 +11,11 @@
     
     <div class="file-info-content" id="infoContent">
 
-        <div class="file-preview">
-            <img id="infoThumbnail" class="file-preview-thumbnail" style="display: none;">
-            <span id="infoIcon" class="material-icons-round file-preview-icon">insert_drive_file</span>
-        </div>
+    <div class="file-preview" id="filePreview" style="cursor: pointer;">
+        <img id="infoThumbnail" class="file-preview-thumbnail" style="display: none;">
+        <video id="infoVideo" class="file-preview-video" controls style="display: none; max-width: 100%; max-height: 400px;"></video>
+        <span id="infoIcon" class="material-icons-round file-preview-icon">insert_drive_file</span>
+    </div>
 
         <div class="file-detail-section">
             <h3>Детали</h3>

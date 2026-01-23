@@ -48,7 +48,7 @@ function runIncrementalScan(PDO $pdo) {
             SELECT *
             FROM files
             WHERE scan_path_id IN ($placeholders)
-            AND file_status != 'deleted'
+
         ");
         $stmt->execute($pathIds);
 
@@ -129,6 +129,26 @@ function runIncrementalScan(PDO $pdo) {
 
                 $dbFile = $dbByPath[$path];
                 $seenDb[$dbFile['id']] = true;
+
+                    if ($dbFile['file_status'] === 'deleted') {
+                        // ФАЙЛ ВЕРНУЛСЯ
+                        $toUpdate[] = [
+                            'id'     => $dbFile['id'],
+                            'size'   => $file['size'],
+                            'status' => 'active',
+                            'file_modified_at' => $file['file_modified_at']
+                        ];
+
+                        $changes[] = [
+                            'file_id'  => $dbFile['id'],
+                            'type'     => 'restored',
+                            'old_path' => $path,
+                            'new_path' => $path,
+                            'details'  => null
+                        ];
+
+                        continue;
+                    }
 
                 // размер изменился
                 if ((int)$dbFile['file_size'] !== (int)$file['size']) {

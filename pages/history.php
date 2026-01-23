@@ -372,7 +372,7 @@ function highlightPathDifference($oldPath, $newPath, $isOldPath = false) {
                 <div class="stat-item stat-added">
                     <span class="material-icons-round">add_circle</span>
                     <div>
-                        <strong><?= number_format($stats['new'] ?? 0, 0, ',', ' ') ?></strong>
+                        <strong><?= number_format($stats['added'] ?? 0, 0, ',', ' ') ?></strong>
                         <span>Добавлено</span>
                     </div>
                 </div>

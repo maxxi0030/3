@@ -230,11 +230,8 @@ function closeClientAssign() {
 
 
 
-
-
-
 // ====================================================================
-// ФУНКЦИИ ДЛЯ МЕТАДАННЫХ ВИДЕО 
+// ФУНКЦИИ ДЛЯ МЕТАДАННЫХ ВИДЕО И ВОСПРОИЗВЕДЕНИЯ
 // ====================================================================
 
 // список расширений для видео
@@ -244,71 +241,42 @@ const VIDEO_EXTENSIONS = [
     '.xvid', '.rm', '.rmvb', '.asf', '.qt', '.ts'
 ];
 
-
 // проверка, является ли файл видео по расширению
 function isVideoFile(filename) {
     const ext = filename.toLowerCase().substring(filename.lastIndexOf('.'));
     return VIDEO_EXTENSIONS.includes(ext);
 }
 
-
-// первод в удобный формат времени из секунд
-function formatDuration(seconds) {
-    if (!seconds) return '—';
-    const hours = Math.floor(seconds / 3600);
-    const minutes = Math.floor((seconds % 3600) / 60);
-    const secs = seconds % 60;
-    
-    if (hours > 0) {
-        return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
-    }
-    return `${minutes}:${String(secs).padStart(2, '0')}`;
-}
-
-
-// битрейт показывает нормално
-function formatBitrate(bitrate) {
-    if (!bitrate) return '—';
-    const kbps = Math.round(bitrate / 1000);
-    if (kbps > 1000) {
-        return `${(kbps / 1000).toFixed(2)} Mbps`;
-    }
-    return `${kbps} kbps`;
-}
-
-
-// аудио каналы
-function formatAudioChannels(channels) {
-    if (!channels) return '—';
-    const channelMap = {
-        1: 'Моно (1)',
-        2: 'Стерео (2)',
-        6: '5.1 (6)',
-        8: '7.1 (8)'
-    };
-    return channelMap[channels] || `${channels} каналов`;
-}
-
-function formatBytes(bytes, decimals = 2) {
-    if (!bytes || bytes === 0) return '0 Bytes';
-    const k = 1024;
-    const dm = decimals < 0 ? 0 : decimals;
-    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
-    const i = Math.floor(Math.log(bytes) / Math.log(k));
-    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
-}
+// Переменные для воспроизведения
+let currentVideoPath = null;
+let currentFileType = null;
 
 // Загрузка метаданных видео
-function loadVideoMetadata(fileId) {
+function loadVideoMetadata(fileId, filePath) {
     const section = document.getElementById('videoMetadataSection');
     const loadingEl = document.getElementById('videoMetadataLoading');
     const errorEl = document.getElementById('videoMetadataError');
     const contentEl = document.getElementById('videoMetadataContent');
 
-
+    // ВАЖНО: используем ID для стриминга через PHP, а не прямой путь!
+    currentVideoPath = `api/stream_video.php?file_id=${fileId}`;
+    currentFileType = 'video/mp4';
+    
     // Сбрасываем превью перед загрузкой
-    document.getElementById('infoThumbnail').style.display = 'none';
-    document.getElementById('infoIcon').style.display = 'block';
+    const thumbnail = document.getElementById('infoThumbnail');
+    const video = document.getElementById('infoVideo');
+    const icon = document.getElementById('infoIcon');
+    const preview = document.getElementById('filePreview');
+    
+    // Останавливаем и скрываем видео
+    video.pause();
+    video.src = '';
+    video.style.display = 'none';
+    preview.classList.remove('playing');
+    
+    thumbnail.style.display = 'none';
+    icon.style.display = 'block';
+    icon.textContent = 'play_circle'; // Иконка воспроизведения для видео
     
     // Показываем секцию и состояние загрузки
     section.style.display = 'block';
@@ -323,11 +291,11 @@ function loadVideoMetadata(fileId) {
             if (data.success) {
                 const m = data.metadata;
 
-
+                // Показываем thumbnail если есть
                 if (data.metadata.thumbnail) {
-                    document.getElementById('infoThumbnail').src = data.metadata.thumbnail;
-                    document.getElementById('infoThumbnail').style.display = 'block';
-                    document.getElementById('infoIcon').style.display = 'none';
+                    thumbnail.src = data.metadata.thumbnail;
+                    thumbnail.style.display = 'block';
+                    icon.style.display = 'none';
                 }
                 
                 // Заполняем все поля
@@ -340,7 +308,6 @@ function loadVideoMetadata(fileId) {
                 document.getElementById('videoCodecAudio').textContent = m.codec_audio || '—';
                 document.getElementById('videoAudioChannels').textContent = formatAudioChannels(m.audio_channels);
                 document.getElementById('videoLanguage').textContent = m.language || '—';
-                // document.getElementById('thumbnail').textContent = m.thumbnail || '—';
                 document.getElementById('videoSubtitles').textContent = m.subtitles ? 'Да' : 'Нет';
                 
                 // Показываем контент, скрываем загрузку
@@ -357,13 +324,116 @@ function loadVideoMetadata(fileId) {
         });
 }
 
+// Переменная для хранения статуса файла
+let currentFileStatus = null;
+
+// Обработчик клика на превью (только один раз!)
+document.addEventListener('DOMContentLoaded', function() {
+    const filePreview = document.getElementById('filePreview');
+    
+    if (filePreview) {
+        filePreview.addEventListener('click', function() {
+            // Блокируем для deleted файлов
+            if (currentFileStatus === 'deleted') {
+                return;
+            }
+            
+            if (currentFileType && currentFileType.startsWith('video/')) {
+                const video = document.getElementById('infoVideo');
+                const icon = document.getElementById('infoIcon');
+                const thumbnail = document.getElementById('infoThumbnail');
+                
+                // Если видео уже проигрывается - ничего не делаем
+                if (video.style.display === 'block') {
+                    return;
+                }
+                
+                // Скрываем иконку/thumbnail и показываем видео
+                icon.style.display = 'none';
+                thumbnail.style.display = 'none';
+                video.style.display = 'block';
+                video.src = currentVideoPath;
+                
+                // Добавляем класс для отключения hover эффекта
+                filePreview.classList.add('playing');
+                
+                // Автоматически начинаем воспроизведение
+                video.play().catch(e => {
+                    console.error('Ошибка воспроизведения:', e);
+                    alert('Не удалось воспроизвести видео. Проверьте формат файла.');
+                });
+                
+                // Обработка ошибок
+                video.onerror = function() {
+                    // alert('Не удалось загрузить видео. Возможно, формат не поддерживается браузером.');
+                    video.style.display = 'none';
+                    icon.style.display = 'block';
+                    icon.textContent = 'videocam_off';
+                    filePreview.classList.remove('playing');
+                };
+                
+                // Когда видео закончилось - показываем обратно thumbnail
+                video.onended = function() {
+                    video.style.display = 'none';
+                    if (thumbnail.src) {
+                        thumbnail.style.display = 'block';
+                    } else {
+                        icon.style.display = 'block';
+                        icon.textContent = 'play_circle';
+                    }
+                    filePreview.classList.remove('playing');
+                };
+            }
+        });
+    }
+});
 
 
 
+// Вспомогательные функции форматирования
+function formatDuration(seconds) {
+    if (!seconds) return '—';
+    const hours = Math.floor(seconds / 3600);
+    const minutes = Math.floor((seconds % 3600) / 60);
+    const secs = seconds % 60;
+    
+    if (hours > 0) {
+        return `${hours}:${String(minutes).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+    }
+    return `${minutes}:${String(secs).padStart(2, '0')}`;
+}
+
+function formatBitrate(bitrate) {
+    if (!bitrate) return '—';
+    const kbps = Math.round(bitrate / 1000);
+    if (kbps > 1000) {
+        return `${(kbps / 1000).toFixed(2)} Mbps`;
+    }
+    return `${kbps} kbps`;
+}
+
+function formatAudioChannels(channels) {
+    if (!channels) return '—';
+    const channelMap = {
+        1: 'Моно (1)',
+        2: 'Стерео (2)',
+        6: '5.1 (6)',
+        8: '7.1 (8)'
+    };
+    return channelMap[channels] || `${channels} каналов`;
+}
 
 
+// Добавьте эту функцию в начало файла, где у вас другие вспомогательные функции
 
-
+function formatBytes(bytes, decimals = 2) {
+    if (!bytes || bytes === 0) return '0 Bytes';
+    const k = 1024;
+    const dm = decimals < 0 ? 0 : decimals;
+    const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB'];
+    const i = Math.floor(Math.log(bytes) / Math.log(k));
+    return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+}
 
 
 
@@ -383,30 +453,51 @@ function loadVideoMetadata(fileId) {
 // ФУНКЦИИ ДЛЯ ПАНЕЛИ С ИНФО О ФАЙЛЕ
 // ====================================================================
 
-// функция для показа панели с инфой о файле без перезагрузки страницы
 function showFileInfo(buttonElement, file) {
     // убираем подсветку у всех строк
     document.querySelectorAll('.file-table tr').forEach(row => {
         row.classList.remove('active-row');
     });
 
-    // находим строку и красим
     const row = buttonElement.closest('tr'); 
     if (row) {
         row.classList.add('active-row');
     }
 
+    // Сохраняем статус файла
+    currentFileStatus = file.status;
+
     // Проверяем тип файла
-    const filename = file.name; // <- используем file (параметр функции)
+    const filename = file.name;
+    const preview = document.getElementById('filePreview');
         
     if (isVideoFile(filename)) {
-        // Это видео - показываем превью, вызываем loadVideoMetadata
-        loadVideoMetadata(file.id); // <- используем file.id
+        // Для deleted файлов убираем курсор и блокируем
+        if (file.status === 'deleted') {
+            preview.style.cursor = 'default';
+            preview.classList.add('disabled');
+        } else {
+            preview.style.cursor = 'pointer';
+            preview.classList.remove('disabled');
+        }
+        
+        // ВАЖНО: передаем file.path для воспроизведения!
+        loadVideoMetadata(file.id, file.path);
     } else {
-        // Это не видео - скрываем превью и thumbnail
+        // Это не видео - скрываем превью
+        const video = document.getElementById('infoVideo');
+        video.pause();
+        video.src = '';
+        video.style.display = 'none';
+        
         document.getElementById('infoThumbnail').style.display = 'none';
         document.getElementById('infoIcon').style.display = 'block';
         document.getElementById('videoMetadataSection').style.display = 'none';
+        document.getElementById('filePreview').classList.remove('playing');
+        
+        // Сбрасываем переменные воспроизведения
+        currentVideoPath = null;
+        currentFileType = null;
     }
 
     // заполняем панель данными
@@ -424,19 +515,14 @@ function showFileInfo(buttonElement, file) {
     icon.textContent = (file.status === 'exists') ? 'insert_drive_file' : 'report_problem';
 
     const movedSection = document.getElementById('movedSection');
-    
-    // 1. Проверяем наличие old_path (это самый верный признак)
-    // 2. Используем опциональный статус, если он есть в объекте
     const isMoved = file.old_path || file.status === 'moved';
 
     if (isMoved) {
         movedSection.style.display = 'block';
         
-        // Заполняем пути
         const oldPathElem = document.getElementById('infoOldPath');
         const newPathElem = document.getElementById('infoNewPath');
         
-        // Используем функцию выделения различий для обоих путей
         if (oldPathElem) {
             oldPathElem.innerHTML = highlightPathDifference(file.old_path, file.path || file.new_path, true);
         }
@@ -444,8 +530,6 @@ function showFileInfo(buttonElement, file) {
         if (newPathElem) {
             newPathElem.innerHTML = highlightPathDifference(file.old_path, file.path || file.new_path, false);
         }
-        
-        console.log("Отображаем историю перемещения для файла:", file.id);
     } else {
         movedSection.style.display = 'none';
     }
@@ -455,31 +539,39 @@ function showFileInfo(buttonElement, file) {
     };
 
     panel.classList.remove('hidden');
-
-    // проверка видео ли это - выше уже есть
-    // if (isVideoFile(file.name)) {
-    //     loadVideoMetadata(file.id);
-    // } else {
-    //     // Скрываем секцию метаданных для не-видео файлов
-    //     document.getElementById('videoMetadataSection').style.display = 'none';
-    // }
-
-    // panel.classList.remove('hidden');
 }
-
 
 // при закрытии панели
 function closeFileInfo() {
-    document.getElementById('fileInfoPanel').classList.add('hidden');
+    const panel = document.getElementById('fileInfoPanel');
+    panel.classList.add('hidden');
+    
+    // Останавливаем видео при закрытии
+    const video = document.getElementById('infoVideo');
+    if (video) {
+        video.pause();
+        video.src = '';
+        video.style.display = 'none';
+    }
+    
+    // Сбрасываем состояние превью
+    const preview = document.getElementById('filePreview');
+    if (preview) {
+        preview.classList.remove('playing');
+    }
     
     // Убираем выделение со всех строк
     document.querySelectorAll('.file-table tr').forEach(row => {
         row.classList.remove('active-row');
     });
     
+    // Сбрасываем переменные
+    currentVideoPath = null;
+    currentFileType = null;
 }
 
-// Новая функция-посредник
+
+
 // Новая функция-посредник
 function loadFileAndShowInfo(buttonElement, fileId) {
     // 1. Идем на сервер за данными конкретного файла
