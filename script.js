@@ -436,8 +436,14 @@ function showFileInfo(buttonElement, file) {
         const oldPathElem = document.getElementById('infoOldPath');
         const newPathElem = document.getElementById('infoNewPath');
         
-        if (oldPathElem) oldPathElem.textContent = file.old_path || 'Неизвестно';
-        if (newPathElem) newPathElem.textContent = file.path || file.new_path;
+        // Используем функцию выделения различий для обоих путей
+        if (oldPathElem) {
+            oldPathElem.innerHTML = highlightPathDifference(file.old_path, file.path || file.new_path, true);
+        }
+        
+        if (newPathElem) {
+            newPathElem.innerHTML = highlightPathDifference(file.old_path, file.path || file.new_path, false);
+        }
         
         console.log("Отображаем историю перемещения для файла:", file.id);
     } else {
@@ -474,6 +480,7 @@ function closeFileInfo() {
 }
 
 // Новая функция-посредник
+// Новая функция-посредник
 function loadFileAndShowInfo(buttonElement, fileId) {
     // 1. Идем на сервер за данными конкретного файла
     fetch('api/get_file_info.php?id=' + fileId)
@@ -490,19 +497,43 @@ function loadFileAndShowInfo(buttonElement, fileId) {
                 old_path: data.old_path // если добавишь такую колонку
             };
 
-            // 2. Вызываем твою оригинальную функцию, которую ты скинул
+            // 2. Вызываем твою оригинальную функцию
             showFileInfo(buttonElement, fileForDisplay);
             
-            // 3. Заполняем даты (которых не было в старой функции)
-            const createdDate = data.created_at ? data.created_at.split('.')[0] : '-';
-            document.getElementById('infoCreated').textContent = createdDate;
+            // 3. Заполняем ОРИГИНАЛЬНЫЕ даты файла (из файловой системы)
+            document.getElementById('infoFileCreated').textContent = 
+                data.file_created_at ? formatDateTime(data.file_created_at) : '-';
+            
+            document.getElementById('infoFileModified').textContent = 
+                data.file_modified_at ? formatDateTime(data.file_modified_at) : '-';
 
-            // Если есть дата изменения
-            if (data.updated_at) {
-                const updatedDate = data.updated_at.split('.')[0];
-                document.getElementById('infoUpdated').textContent = updatedDate;
-            }
+            // 4. Заполняем даты работы с БД
+            document.getElementById('infoDbCreated').textContent = 
+                data.created_at ? formatDateTime(data.created_at) : '-';
+            
+            document.getElementById('infoDbUpdated').textContent = 
+                data.updated_at ? formatDateTime(data.updated_at) : '-';
         });
+}
+
+// Вспомогательная функция для форматирования даты
+function formatDateTime(dateString) {
+    if (!dateString) return '-';
+    
+    // Убираем миллисекунды если есть
+    const cleanDate = dateString.split('.')[0];
+    
+    // Парсим дату
+    const date = new Date(cleanDate);
+    
+    // Форматируем как "23.01.2026 14:30"
+    const day = String(date.getDate()).padStart(2, '0');
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const year = date.getFullYear();
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    
+    return `${day}.${month}.${year} ${hours}:${minutes}`;
 }
 
 // кнопка копировать путь в карточке с ифой о файле
@@ -513,6 +544,54 @@ function copyPath() {
     });
 }
 
+
+
+
+
+// Функция для выделения различий в путях
+function highlightPathDifference(oldPath, newPath, isOldPath = false) {
+    if (!oldPath || !newPath) {
+        return newPath || oldPath || '';
+    }
+    
+    // Нормализуем пути
+    oldPath = oldPath.replace(/\\/g, '/');
+    newPath = newPath.replace(/\\/g, '/');
+    
+    // Разбиваем пути на части
+    const oldParts = oldPath.split('/');
+    const newParts = newPath.split('/');
+    
+    let result = '';
+    const highlightClass = isOldPath ? 'path-highlight-old' : 'path-highlight-new';
+    
+    // Для старого пути используем oldParts, для нового - newParts
+    const partsToUse = isOldPath ? oldParts : newParts;
+    const partsToCompare = isOldPath ? newParts : oldParts;
+    
+    for (let i = 0; i < partsToUse.length; i++) {
+        // Если части не совпадают, выделяем
+        if (!partsToCompare[i] || partsToCompare[i] !== partsToUse[i]) {
+            result += `<span class="${highlightClass}">${escapeHtml(partsToUse[i])}</span>`;
+        } else {
+            result += escapeHtml(partsToUse[i]);
+        }
+        
+        // Добавляем разделитель, если это не последний элемент
+        if (i < partsToUse.length - 1) {
+            result += '/';
+        }
+    }
+    
+    return result;
+}
+
+// Вспомогательная функция для экранирования HTML
+function escapeHtml(text) {
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
+}
 
 
 
@@ -730,11 +809,6 @@ checkInterval = setInterval(checkForUpdates, 90000);
 
 // Первая проверка сразу при загрузке (установит начальное значение)
 checkForUpdates();
-
-
-
-
-
 
 
 
@@ -1023,3 +1097,37 @@ document.addEventListener('DOMContentLoaded', () => {
         const isVisible = details.style.display !== 'none';
         details.style.display = isVisible ? 'none' : 'block';
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

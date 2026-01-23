@@ -378,6 +378,15 @@ CREATE INDEX IF NOT EXISTS idx_files_status ON files (file_status);
 ALTER TABLE files ALTER COLUMN file_name TYPE varchar(500);
 ALTER TABLE files ALTER COLUMN file_path TYPE text;
 
+
+
+
+
+
+ALTER TABLE files 
+ADD COLUMN file_created_at TIMESTAMP NULL,
+ADD COLUMN file_modified_at TIMESTAMP NULL;
+
 ; =====================================================
 ; =====================================================
 -- ============================================

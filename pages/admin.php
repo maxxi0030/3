@@ -104,84 +104,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         // Обновляем список
         $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
     }
+
+
+
+    // TRUNCATE TABLE
+    if ($_POST['action'] === 'truncate_files') {
+        try {
+            $pdo->exec("TRUNCATE TABLE files CASCADE");
+            $message = "✓ Таблица успешно очищена";
+            
+            // Обновляем список
+            $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
+        } catch (PDOException $e) {
+            $message = "✗ Ошибка при очистке таблицы: " . $e->getMessage();
+        }
+    }
 }
 
-
-
-
-
-
-
-
-// НИЩИЙ ВАРИК С ДЖСОН
-// $paths_file = 'paths.json';
-// $data_file = 'data.json';
-// $message = null;
-
-
-// // Загружаем существующие пути из JSON
-// // $saved_paths = file_exists($paths_file) ? json_decode(file_get_contents($paths_file), true) : [];
-// $saved_paths = [];
-// if (file_exists($paths_file)) {
-//     $content = file_get_contents($paths_file);
-//     $decoded = json_decode($content, true);
-//     if (is_array($decoded)) {
-//         $saved_paths = $decoded;
-//     }
-// }
-
-// // Обработка POST-запросов
-// if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
     
-//     // ДОБАВЛЕНИЕ ПУТИ
-//     if ($_POST['action'] === 'add_new_path') {
-//         $new_path = trim($_POST['path']);
-//         // Простая нормализация: заменяем обратные слеши на прямые для единообразия
-//         $new_path = str_replace('\\', '/', $new_path);
-        
-//         if (!empty($new_path) && !in_array($new_path, $saved_paths)) {
-//             $saved_paths[] = $new_path;
-//             file_put_contents($paths_file, json_encode($saved_paths, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-//             $message = "Путь успешно добавлен.";
-//         }
-//     }
-
-//     // УДАЛЕНИЕ ПУТИ
-//     if ($_POST['action'] === 'delete_path') {
-//         $path_to_delete = $_POST['path_value'];
-//         // Ищем индекс элемента в массиве
-//         if (($key = array_search($path_to_delete, $saved_paths)) !== false) {
-//             unset($saved_paths[$key]);
-//             // Переиндексируем массив и сохраняем
-//             $saved_paths = array_values($saved_paths);
-//             file_put_contents($paths_file, json_encode($saved_paths, JSON_UNESCAPED_UNICODE | JSON_PRETTY_PRINT));
-//             $message = "Путь удален.";
-//         }
-//     }
 
 
-    // кнопка сканировать
-    // if ($_POST['action'] === 'start_full_scan') {
-    //     // $message = runIncrementalScan($paths_file, $data_file); для первого сканнера 
 
-    //     // проверка есть ли хоть один путь
-    //     if (empty($saved_paths)){
-    //         $message = "Ошибка: Добавьте хотя бы один путь для сканирования.";
-    //     } else {
-    //         $result = runIncrementalScan($paths_file, $data_file);
-
-    //         // вывод соо из статистики
-    //         if (is_array($result)) {
-    //             $s = $result['stats'];
-    //             $message = "<b>" . $result['message'] . "</b><br>";
-    //             $message .= "Новых: {$s['new']} | Обновлено: {$s['updated']} | Перемещено: {$s['moved']} | Удалено: {$s['deleted']}";
-    //         } else {
-    //             // если вернулась строка - ошибка
-    //             $message = $result;
-    //         }
-    //     }
-    // }
-// }
 
 ?>
 
@@ -190,6 +133,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 <header class="top-bar">
     <h1>Панель администратора</h1>
+
+    <form method="POST" onsubmit="return confirm('⚠️⚠️⚠️ ВНИМАНИЕ! ⚠️⚠️⚠️\n\nВы собираетесь удалить ВСЕ данные из таблицы files!\n\nЭто действие НЕОБРАТИМО!\n\nПродолжить?');">
+        <input type="hidden" name="action" value="truncate_files">
+        <button type="submit" class="danger-btn truncate-btn">TRUNCATE CASCADE</button>
+    </form>
 </header>
 
 <?php if (isset($message)): ?>

@@ -93,13 +93,20 @@ function runIncrementalScan(PDO $pdo) {
                 if (in_array($ext, $ignoredExtensions, true)) {
                     continue;
                 }
+                    
+                // ДОБАВЛЯЕМ ПОЛУЧЕНИЕ ВРЕМЕННЫХ МЕТОК
+                $ctime = $info->getCTime(); // время создания (на Windows) / изменения метаданных (на Linux)
+                $mtime = $info->getMTime(); // время последней модификации содержимого
 
                 $fsFiles[] = [
                     'scan_path_id' => $scanPathId,
                     'path' => $path,
                     'name' => $name,
                     'size' => $size,
-                    'ext'  => $ext
+                    'ext'  => $ext,
+                    'file_created_at' => date('Y-m-d H:i:s', $ctime),  // оригинальное время создания
+                    'file_modified_at' => date('Y-m-d H:i:s', $mtime)  // оригинальное время модификации
+
                 ];
             }
         }
@@ -129,7 +136,8 @@ function runIncrementalScan(PDO $pdo) {
                     $toUpdate[] = [
                         'id'     => $dbFile['id'],
                         'size'   => $file['size'],
-                        'status' => 'updated'
+                        'status' => 'updated',
+                        'file_modified_at' => $file['file_modified_at']
                     ];
 
                     $changes[] = [
@@ -151,7 +159,8 @@ function runIncrementalScan(PDO $pdo) {
                     $toUpdate[] = [
                         'id'     => $dbFile['id'],
                         'size'   => $file['size'],
-                        'status' => 'active'
+                        'status' => 'active',
+                        'file_modified_at' => $file['file_modified_at']
                     ];
                 }
 
@@ -187,6 +196,15 @@ function runIncrementalScan(PDO $pdo) {
 
             // === 3. НОВЫЙ ФАЙЛ ===
             $toInsert[] = $file;
+
+            $changes[] = [
+                'file_id'  => null,  // ID получим после INSERT
+                'type'     => 'added',
+                'old_path' => null,
+                'new_path' => $file['path'],
+                'details'  => null
+            ];
+
             $stats['new']++;
         }
 
@@ -216,67 +234,100 @@ function runIncrementalScan(PDO $pdo) {
 
         $stats['deleted'] = count($toDelete);
 
-        // =====================================================
-        // 6. APPLY CHANGES
-        // =====================================================
-        $pdo->beginTransaction();
+    // =====================================================
+    // 6. APPLY CHANGES
+    // =====================================================
+    $pdo->beginTransaction();
 
-        // NEW
-        foreach ($toInsert as $f) {
-            $pdo->prepare("
-                INSERT INTO files
-                (scan_path_id, file_name, file_path, file_extension, file_size, file_status, temp_found)
-                VALUES (?, ?, ?, ?, ?, 'new', true)
-            ")->execute([
-                $f['scan_path_id'], $f['name'], $f['path'], $f['ext'], $f['size']
-            ]);
+
+    // NEW - вставляем файлы И сразу логируем
+    foreach ($toInsert as $f) {
+        $pdo->prepare("
+            INSERT INTO files
+            (scan_path_id, file_name, file_path, file_extension, file_size, file_status, temp_found, 
+            file_created_at, file_modified_at, created_at, updated_at)
+            VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        ")->execute([
+            $f['scan_path_id'],        // 1
+            $f['name'],                // 2
+            $f['path'],                // 3
+            $f['ext'],                 // 4
+            $f['size'],                // 5
+            'new',                     // 6 - file_status
+            true,                      // 7 - temp_found
+            $f['file_created_at'],     // 8 - file_created_at
+            $f['file_modified_at']     // 9 - file_modified_at
+        ]);
+        
+        $newFileId = $pdo->lastInsertId();
+        
+        $pdo->prepare("
+            INSERT INTO file_changes
+            (scan_history_id, file_id, change_type, old_path, new_path, details)
+            VALUES (?, ?, 'added', NULL, ?, NULL)
+        ")->execute([
+            $scanId,
+            $newFileId,
+            $f['path']
+        ]);
+    }
+
+    // UPDATED / ACTIVE
+    foreach ($toUpdate as $u) {
+        $pdo->prepare("
+            UPDATE files
+            SET file_size = ?, file_status = ?, file_modified_at = ?, temp_found = ?, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ")->execute([
+            $u['size'],                // 1
+            $u['status'],              // 2
+            $u['file_modified_at'],    // 3
+            true,                      // 4
+            $u['id']                   // 5
+        ]);
+    }
+
+    // MOVED
+    foreach ($toMove as $m) {
+        $pdo->prepare("
+            UPDATE files
+            SET file_path = ?, scan_path_id = ?, file_status = ?, temp_found = true, updated_at = CURRENT_TIMESTAMP
+            WHERE id = ?
+        ")->execute([$m['path'], $m['scan_path_id'], $m['status'], $m['id']]);
+    }
+
+    // DELETED
+    if ($toDelete) {
+        $ph = implode(',', array_fill(0, count($toDelete), '?'));
+        $pdo->prepare("
+            UPDATE files
+            SET file_status = 'deleted', updated_at = CURRENT_TIMESTAMP
+            WHERE id IN ($ph)
+        ")->execute($toDelete);
+    }
+
+    // LOGS (теперь только для updated, moved, deleted)
+    foreach ($changes as $c) {
+        // Пропускаем 'added' - они уже записаны выше
+        if ($c['type'] === 'added') {
+            continue;
         }
+        
+        $pdo->prepare("
+            INSERT INTO file_changes
+            (scan_history_id, file_id, change_type, old_path, new_path, details)
+            VALUES (?, ?, ?, ?, ?, ?)
+        ")->execute([
+            $scanId,
+            $c['file_id'],
+            $c['type'],
+            $c['old_path'],
+            $c['new_path'],
+            $c['details']
+        ]);
+    }
 
-        // UPDATED / ACTIVE
-        foreach ($toUpdate as $u) {
-            $pdo->prepare("
-                UPDATE files
-                SET file_size = ?, file_status = ?, temp_found = true, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ")->execute([$u['size'], $u['status'], $u['id']]);
-        }
-
-        // MOVED
-        foreach ($toMove as $m) {
-            $pdo->prepare("
-                UPDATE files
-                SET file_path = ?, scan_path_id = ?, file_status = ?, temp_found = true, updated_at = CURRENT_TIMESTAMP
-                WHERE id = ?
-            ")->execute([$m['path'], $m['scan_path_id'], $m['status'], $m['id']]);
-        }
-
-        // DELETED
-        if ($toDelete) {
-            $ph = implode(',', array_fill(0, count($toDelete), '?'));
-            $pdo->prepare("
-                UPDATE files
-                SET file_status = 'deleted', updated_at = CURRENT_TIMESTAMP
-                WHERE id IN ($ph)
-            ")->execute($toDelete);
-        }
-
-        // LOGS
-        foreach ($changes as $c) {
-            $pdo->prepare("
-                INSERT INTO file_changes
-                (scan_history_id, file_id, change_type, old_path, new_path, details)
-                VALUES (?, ?, ?, ?, ?, ?)
-            ")->execute([
-                $scanId,
-                $c['file_id'],
-                $c['type'],
-                $c['old_path'],
-                $c['new_path'],
-                $c['details']
-            ]);
-        }
-
-        $pdo->commit();
+    $pdo->commit();
 
         // =====================================================
         // 7. FINISH SCAN

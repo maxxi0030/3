@@ -1,5 +1,4 @@
 <?php
-// require_once 'db/db_connect.php';
 require_once __DIR__ . '/../db/db_connect.php';
 
 header('Content-Type: application/json');
@@ -7,13 +6,24 @@ header('Content-Type: application/json');
 if (isset($_GET['id'])) {
     $id = (int)$_GET['id'];
     
-    // Берем всё из таблицы files по ID
-    $stmt = $pdo->prepare("SELECT * FROM files WHERE id = ?");
+    $stmt = $pdo->prepare("
+        SELECT 
+            id,
+            file_name,
+            file_size,
+            file_path,
+            file_status,
+            file_created_at,
+            file_modified_at,
+            created_at,
+            updated_at
+        FROM files 
+        WHERE id = ?
+    ");
     $stmt->execute([$id]);
     $file = $stmt->fetch(PDO::FETCH_ASSOC);
 
     if ($file && $file['file_status'] === 'moved') {
-        // Если файл перемещен, ищем последнюю запись об этом в истории
         $histStmt = $pdo->prepare("
             SELECT old_path, new_path 
             FROM file_changes 
@@ -25,11 +35,10 @@ if (isset($_GET['id'])) {
 
         if ($history) {
             $file['old_path'] = $history['old_path'];
-            $file['new_path'] = $history['new_path'];
         }
     }
 
-echo json_encode($file);
+    echo json_encode($file);
 }
 exit;
 ?>

@@ -118,6 +118,52 @@ function getUrl($pageNum, $params) {
     $query['page'] = 'history'; // Гарантируем, что остаемся в модуле history
     return '?' . http_build_query($query);
 }
+
+
+function highlightPathDifference($oldPath, $newPath, $isOldPath = false) {
+    if (empty($oldPath) || empty($newPath)) {
+        return htmlspecialchars($newPath ?? $oldPath ?? '');
+    }
+    
+    // Нормализуем пути
+    $oldPath = str_replace('\\', '/', $oldPath);
+    $newPath = str_replace('\\', '/', $newPath);
+    
+    // Разбиваем пути на части
+    $oldParts = explode('/', $oldPath);
+    $newParts = explode('/', $newPath);
+    
+    $result = '';
+    $highlightClass = $isOldPath ? 'path-highlight-old' : 'path-highlight-new';
+    
+    // Для старого пути используем oldParts, для нового - newParts
+    $partsToUse = $isOldPath ? $oldParts : $newParts;
+    $partsToCompare = $isOldPath ? $newParts : $oldParts;
+    
+    for ($i = 0; $i < count($partsToUse); $i++) {
+        // Если части не совпадают, выделяем
+        if (!isset($partsToCompare[$i]) || $partsToCompare[$i] !== $partsToUse[$i]) {
+            $result .= '<span class="' . $highlightClass . '">' . htmlspecialchars($partsToUse[$i]) . '</span>';
+        } else {
+            $result .= htmlspecialchars($partsToUse[$i]);
+        }
+        
+        // Добавляем разделитель, если это не последний элемент
+        if ($i < count($partsToUse) - 1) {
+            $result .= '/';
+        }
+    }
+    
+    return $result;
+}
+
+
+
+
+
+
+
+
 ?>
 
 <link rel="stylesheet" href="history.css">
@@ -249,12 +295,12 @@ function getUrl($pageNum, $params) {
                         <div class="path-change">
                             <p class="timeline-path old-path">
                                 <span class="path-label">Было:</span>
-                                <?= htmlspecialchars($event['old_path']) ?>
+                                <?= highlightPathDifference($event['old_path'], $event['new_path'], true) ?>
                             </p>
                             <span class="material-icons-round path-arrow">arrow_downward</span>
                             <p class="timeline-path new-path">
                                 <span class="path-label">Стало:</span>
-                                <?= htmlspecialchars($event['new_path']) ?>
+                                <?= highlightPathDifference($event['old_path'], $event['new_path'], false) ?>
                             </p>
                         </div>
                     <?php else: ?>
@@ -326,7 +372,7 @@ function getUrl($pageNum, $params) {
                 <div class="stat-item stat-added">
                     <span class="material-icons-round">add_circle</span>
                     <div>
-                        <strong><?= number_format($stats['added'] ?? 0, 0, ',', ' ') ?></strong>
+                        <strong><?= number_format($stats['new'] ?? 0, 0, ',', ' ') ?></strong>
                         <span>Добавлено</span>
                     </div>
                 </div>

@@ -660,6 +660,21 @@ body {
     to { transform: rotate(360deg); }
 }
 
+.danger-btn {
+    background: #e74c3c;
+    color: white;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: bold;
+    transition: background 0.3s;
+}
+
+.danger-btn:hover {
+    background: #c0392b;
+}
+
 
 
 
@@ -700,8 +715,8 @@ body {
 
 .file-info-panel {
     width: 420px;
-    background: white;
-    border-left: 1px solid var(--border);
+    background: #ffffff;
+    border-left: 1px solid #e5e7eb;
     display: flex;
     flex-direction: column;
     transition: transform 0.3s ease;
@@ -715,7 +730,7 @@ body {
 
 .file-info-header {
     padding: 24px;
-    border-bottom: 1px solid var(--border);
+    border-bottom: 1px solid #e5e7eb;
     display: flex;
     justify-content: space-between;
     align-items: center;
@@ -729,24 +744,25 @@ body {
     margin: 0;
     font-size: 18px;
     font-weight: 600;
+    color: #1f2937;
 }
 
 .close-panel-btn {
     background: none;
     border: none;
     cursor: pointer;
-    color: var(--text-secondary);
-    padding: 4px;
-    border-radius: 6px;
+    color: #6b7280;
+    padding: 8px;
+    border-radius: 8px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
+    transition: all 0.2s ease;
 }
 
 .close-panel-btn:hover {
-    background: #F3F4F6;
-    color: var(--text-primary);
+    background: #f3f4f6;
+    color: #1f2937;
 }
 
 .file-info-content {
@@ -755,26 +771,23 @@ body {
 }
 
 .file-detail-section {
-    margin-bottom: 32px;
+    margin-bottom: 28px;
 }
 
 .file-detail-section h3 {
-    font-size: 14px;
+    font-size: 13px;
     font-weight: 600;
-    color: var(--text-secondary);
+    color: #6b7280;
     text-transform: uppercase;
-    letter-spacing: 0.5px;
+    letter-spacing: 0.8px;
     margin-bottom: 16px;
 }
 
 .file-detail-row {
     display: flex;
     justify-content: space-between;
-    padding: 12px 0;
-    border-bottom: 1px solid var(--border);
-    /* word-break: break-all; */
-    /* overflow-wrap: break-word; */
-
+    padding: 14px 0;
+    border-bottom: 1px solid #d9dbdd;
 }
 
 .file-detail-row:last-child {
@@ -782,14 +795,15 @@ body {
 }
 
 .file-detail-label {
-    color: var(--text-secondary);
+    color: #6b7280;
     font-size: 14px;
+    font-weight: 500;
 }
 
 .file-detail-value {
-    color: var(--text-primary);
+    color: #1f2937;
     font-size: 14px;
-    font-weight: 500;
+    font-weight: 600;
     text-align: right;
     max-width: 200px;
     word-break: break-word;
@@ -798,30 +812,31 @@ body {
 .file-preview {
     width: 100%;
     height: 200px;
-    background: var(--bg-app);
-    border-radius: 12px;
+    background: linear-gradient(135deg, #f5f7fa 0%, #e9ecef 100%);
+    border-radius: 16px;
     display: flex;
     align-items: center;
     justify-content: center;
-    margin-bottom: 16px;
+    margin-bottom: 20px;
+    border: 2px solid #e5e7eb;
 }
 
 .file-preview-thumbnail {
     max-width: 100%;
     max-height: 100%;
-    border-radius: 8px;
+    border-radius: 12px;
     object-fit: contain;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .file-preview .material-icons-round {
     font-size: 64px;
-    color: var(--text-secondary);
+    color: #9ca3af;
 }
 
 .file-preview-icon {
     font-size: 64px;
-    color: var(--accent);
+    color: #667eea;
 }
 
 .file-actions-panel {
@@ -836,49 +851,81 @@ body {
 
 /* Секция истории перемещения */
 .file-moved-section {
-    display: none;
-    background: #FFF3E0;
-    border-radius: 12px;
-    padding: 15px;
-    border: 1px dashed #FFB74D;
+    background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+    border-radius: 16px;
+    padding: 20px;
+    border: 2px solid #fed7aa;
+    box-shadow: 0 2px 8px rgba(251, 146, 60, 0.1);
 }
 
 .file-moved-section h3 {
-    color: #E65100;
-    margin-bottom: 12px;
+    color: #ea580c;
+    margin-bottom: 16px;
+    font-size: 14px;
 }
 
 .file-path-label {
     font-size: 11px;
-    color: #666;
+    color: #9a3412;
+    font-weight: 600;
+    margin-bottom: 6px;
+    display: block;
 }
 
 .file-path-code {
     display: block;
     word-break: break-all;
-    margin-bottom: 10px;
+    margin-bottom: 16px;
+    background: rgba(255, 255, 255, 0.7);
+    padding: 12px;
+    border-radius: 8px;
+    font-size: 12px;
+    color: #78716c;
+    border: 1px solid #fed7aa;
 }
 
 .file-path-code-new {
     display: block;
     word-break: break-all;
-    font-weight: bold;
-}
-
-/* Отображение полного пути */
-.file-full-path {
-    display: block;
-    background: #f5f5f5;
-    padding: 10px;
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.9);
+    padding: 12px;
     border-radius: 8px;
     font-size: 12px;
-    word-break: break-all;
+    color: #1f2937;
+    border: 2px solid #fb923c;
 }
 
-/* Кнопка перехода в папку */
-.open-folder-btn {
-    width: 100%;
+.path-highlight {
+    background: linear-gradient(120deg, #fbbf24 0%, #f59e0b 100%);
+    color: #ffffff;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 700;
+    box-shadow: 0 2px 4px rgba(245, 158, 11, 0.3);
 }
+
+
+
+
+.path-highlight-old {
+    background: #fee2e2;
+    color: #991b1b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.path-highlight-new {
+    background: #dcfce7;
+    color: #166534;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+
+
 /* Контейнер для пути с кнопкой копирования */
 .file-path-container {
     display: flex;
@@ -888,35 +935,40 @@ body {
 
 .file-full-path {
     display: block;
-    background: #f5f5f5;
-    padding: 10px;
-    border-radius: 8px;
+    background: #f9fafb;
+    padding: 12px;
+    border-radius: 10px;
     font-size: 12px;
     word-break: break-all;
     flex: 1;
+    border: 1px solid #e5e7eb;
+    color: #4b5563;
 }
 
 .copy-path-btn {
-    background: #f5f5f5;
-    border: none;
-    padding: 10px;
-    border-radius: 8px;
+    background: #f9fafb;
+    border: 1px solid #e5e7eb;
+    padding: 12px;
+    border-radius: 10px;
     cursor: pointer;
-    color: var(--text-secondary);
+    color: #6b7280;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: 0.2s;
+    transition: all 0.2s ease;
     flex-shrink: 0;
 }
 
 .copy-path-btn:hover {
-    background: #e0e0e0;
-    color: var(--text-primary);
+    background: #667eea;
+    color: #ffffff;
+    border-color: #667eea;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(102, 126, 234, 0.3);
 }
 
 .copy-path-btn:active {
-    transform: scale(0.95);
+    transform: translateY(0);
 }
 
 /* Секция метаданных видео */
@@ -974,19 +1026,19 @@ body {
     animation: rotate 1s linear infinite;
 }
 
-
-
 /* Стиль для подсвеченной строки */
 .file-table tr.active-row {
-    background-color: #f0f2ff; /* Цвет подсветки */
+    background-color: #f0f2ff;
 }
 
+.open-folder-btn {
+    width: 100%;
+}
 
-.open-folder-btn:disabled{
+.open-folder-btn:disabled {
     opacity: 0.5;
     cursor: not-allowed;
 }
-
 
 /* .badge.new { background: #E1F5FE; color: #0288D1; } 
 .badge.moved { background: #FFF3E0; color: #F57C00; } 
@@ -1591,6 +1643,7 @@ body {
 }
 
 /* Path Changes для moved событий */
+/* Path Changes для moved событий */
 .path-change {
     display: flex;
     flex-direction: column;
@@ -1611,6 +1664,29 @@ body {
 .new-path {
     background: #d1fae5;
     color: #065f46;
+}
+
+.path-arrow {
+    align-self: center;
+    color: #9ca3af;
+
+}
+
+/* Выделение различий в путях */
+.path-highlight-old {
+    background: #fca5a5;
+    color: #7f1d1d;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.path-highlight-new {
+    background: #6ee7b7;
+    color: #064e3b;
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-weight: 600;
 }
 
 .path-arrow {
