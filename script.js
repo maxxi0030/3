@@ -7,10 +7,6 @@ document.getElementById('toggleSidebar').addEventListener('click', () => {
 
 
 
-// сейчас эта кнопка обрабытывается пхп
-// document.getElementById('closePanelBtn')?.addEventListener('click', () => {
-//     document.getElementById('fileInfoPanel').classList.add('hidden');
-// });
 
 
 

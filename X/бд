@@ -149,6 +149,27 @@ SELECT pg_size_pretty(pg_database_size('video_indexer'));
 
 
 
+
+-- ============================================
+-- ОЧИСТКА ТАБЛИЦ И СБРОС СЧЕТЧИКОВ
+-- ============================================
+
+-- Очистка в правильном порядке (учитывая foreign keys)
+TRUNCATE TABLE file_changes CASCADE;
+TRUNCATE TABLE scan_history CASCADE;
+TRUNCATE TABLE video_metadata CASCADE;
+TRUNCATE TABLE files CASCADE;
+TRUNCATE TABLE scan_paths CASCADE;
+
+-- Сброс всех счетчиков
+ALTER SEQUENCE scan_paths_id_seq RESTART WITH 1;
+ALTER SEQUENCE files_id_seq RESTART WITH 1;
+ALTER SEQUENCE video_metadata_id_seq RESTART WITH 1;
+ALTER SEQUENCE scan_history_id_seq RESTART WITH 1;
+ALTER SEQUENCE file_changes_id_seq RESTART WITH 1;
+
+
+
 -- ============================================
 -- DATABASE SCHEMA FOR VIDEO INDEXER
 -- ============================================

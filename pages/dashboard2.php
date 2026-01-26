@@ -38,23 +38,7 @@ $clientsList = $clientsStmt->fetchAll(PDO::FETCH_ASSOC);
 $search = isset($_GET['search']) ? trim($_GET['search']) : '';
 $files = [];
 
-// if ($search !== '') {
-//     // Поиск по имени файла (регистронезависимый в PostgreSQL через ILIKE)
-//     $stmt = $pdo->prepare("
-//         SELECT * FROM files 
-//         WHERE file_name ILIKE :search 
-//         ORDER BY created_at DESC 
-//         LIMIT 50
-//     ");
-//     $stmt->execute(['search' => "%$search%"]);
-//     $files = $stmt->fetchAll();
-// } else {
-//     // Если поиска нет, берем последние n файлов
-//     $stmt = $pdo->query("SELECT * FROM files ORDER BY updated_at DESC LIMIT 10");
-//     $files = $stmt->fetchAll();
-// }
 
-// $files = [];
 
 // Подключаем сборщик условий фильтрации
 require_once __DIR__ . '/../bc/filter_sort.php';
@@ -90,110 +74,6 @@ $hasMore = count($filesAll) > 20;
 // Берем только первые 5 файлов для показа
 $files = array_slice($filesAll, 0, 20);
 
-
-
-
-
-// СТАРЫЙ НИЩИЙ ВАРИАНТ С ДЖСОН
-
-// ЗАГРУЗКА ДАННЫХ
-// $json_file = 'data.json';
-// $all_files = [];
-
-// $stats = [
-//     'total' => 0, // всего активных файлов 
-//     'deleted' => 0,
-//     'moved' => 0,
-//     'new' => 0,
-//     'size_gb' => 0
-// ];
-
-
-// проверяем существует ли ваще файл
-// if (file_exists($json_file)) {
-//     $content = file_get_contents($json_file);
-//     $decoded = json_decode($content, true);
-//     if (is_array($decoded)) {
-//         $all_files = $decoded;
-//     }
-// }
-
-
-// ПОДСЧЕТ СТАТИСТИКИ ДЛЯ шапки
-// foreach ($all_files as $f) {
-//     // Пропускаем битые записи - если статуса нет - то пропускаем чтобы не сломать статистику
-//     if (!isset($f['status'])) continue;
-
-//     if ($f['status'] !== 'deleted' && $f['status'] !== 'source_off') {
-//         $stats['total']++;
-//         // Суммируем размер (грубо, в байтах, если они есть)
-//         if (isset($f['bytes'])) {
-//             $stats['size_gb'] += $f['bytes'];
-//         }
-//     }
-
-    // можно считать еще все перемещенные и удаленные, но думаю этому нету места на дэшборде
-
-    // if ($f['status'] === 'deleted') $stats['deleted']++;
-    // if ($f['status'] === 'moved') $stats['moved']++;
-// }
-// переводим байты в ГБ для отображения
-// $stats['size_gb'] = round($stats['size_gb'] / 1073741824, 2);
-
-
-
-
-// ПОСИК И ФИЛЬТРАЦИЯ 
-// сюда потом поключим отдельную логику которая будет отвечать за это все..
-
-//  * УЛУЧШЕНИЯ, КОТОРЫЕ МОЖНО ДОБАВИТЬ:
-//  * 
-//  * 1. Поиск по нескольким полям (имя + путь)
-//  * 2. Фильтр по статусу (только существующие, только удаленные)
-//  * 3. Фильтр по дате (за последний месяц, год)
-//  * 4. Сортировка результатов (по имени, по дате, по размеру)
-//  * 5. Пагинация (если файлов много - показывать по 50 штук)
-
-
-// но пока что оставим это 
-
-
-// $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-// $status_filter = isset($_GET['status']) ? trim($_GET['status']) : '';
-
-// // ВАЖНО: Сначала проверяем, есть ли поиск
-// if ($search !== '') {
-//     // Если есть поиск - фильтруем
-//     foreach ($all_files as $f) {
-//         // Проверка на целостность данных перед поиском
-//         if (!isset($f['name'])) continue;
-
-//         if (mb_stripos($f['name'], $search) !== false) {
-//             $files[] = $f;
-//         }
-//     }
-// } else {
-//     $files = $all_files;
-// }
-
-
-
-
-// обрабоотка кнопки перехода к файлу
-
-
-
-// ЧТО ТО ТИПО ПАГИНАЦИИ
-
-
-
-
-
-
-
-
-
-    // кнопка сканировать
 
 
 

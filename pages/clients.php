@@ -157,35 +157,6 @@ $clients = $stmt->fetchAll(PDO::FETCH_ASSOC);
 </div>
 
 
-<!-- 
-// document.querySelectorAll('[data-client-name]').forEach(input => {
-//     input.addEventListener('blur', () => {
-//         fetch('api/ajax_clients.php', {
-//             method: 'POST',
-//             body: new URLSearchParams({
-//                 action: 'rename',
-//                 id: input.dataset.clientName,
-//                 name: input.value
-//             })
-//         });
-//     });
-// });
-
-// document.querySelectorAll('[data-delete-client]').forEach(btn => {
-//     btn.addEventListener('click', () => {
-//         if (!confirm('Удалить клиента?')) return;
-
-//         fetch('api/ajax_clients.php', {
-//             method: 'POST',
-//             body: new URLSearchParams({
-//                 action: 'delete',
-//                 id: btn.dataset.deleteClient
-//             })
-//         }).then(() => location.reload());
-//     });
-// });
- -->
-
 
 
 

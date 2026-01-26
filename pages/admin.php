@@ -58,20 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 
 
-
-    // УДАЛЕНИЕ ПУТИ
-    // if ($_POST['action'] === 'delete_path') {
-    //     $id_to_delete = (int)$_POST['path_id']; // Удаляем по ID
-        
-    //     $stmt = $pdo->prepare("DELETE FROM scan_paths WHERE id = ?");
-    //     $stmt->execute([$id_to_delete]);
-    //     $message = "Путь удален из источников.";
-        
-    //     // Обновляем список
-    //     $saved_paths = $pdo->query("SELECT * FROM scan_paths ORDER BY created_at DESC")->fetchAll();
-    // }
-
-
     // УДАЛЕНИЕ ПУТИ
     if ($_POST['action'] === 'delete_path') {
         $id_to_delete = (int)$_POST['path_id']; // Удаляем по ID
@@ -202,11 +188,3 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
 
 
 </div>
-
-<!-- 
-сейчас тут удаляется путь напрямую из бд. надо сделать так чтобы была возможность удалить путь для скана,
-но в бд все будет сохранятся - и если этот путь вернется, то мы сверим что это тот же путь - и проблем не будет.  
-
-
-
--->
